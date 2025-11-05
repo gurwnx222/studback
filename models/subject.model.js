@@ -13,10 +13,6 @@ const SubjectSchema = new Schema({
     type: String,
     required: true,
   },
-  semester: {
-    type: String,
-    required: true,
-  },
   form: {
     type: Schema.Types.ObjectId,
     ref: "Form",
