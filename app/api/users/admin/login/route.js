@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { username, password } = await request.json();
+    const { username, password } = await NextRequest.json();
 
     const existingAdmin = await Admin.findOne({ username });
     if (!existingAdmin) {
