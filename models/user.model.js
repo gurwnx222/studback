@@ -5,7 +5,7 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  registerationID: {
+  registerationId: {
     type: String,
     required: true,
     unique: true,
@@ -33,3 +33,17 @@ const UserSchema = new Schema({
 });
 const User = mongoose.model.users || User.model("users", UserSchema);
 export default User;
+
+const AdminSchema = new Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+const Admin = mongoose.model.admins || mongoose.model("admins", AdminSchema);
+export { Admin };
