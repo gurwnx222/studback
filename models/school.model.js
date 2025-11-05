@@ -5,10 +5,12 @@ const SchoolSchema = new Schema({
     type: String,
     required: true,
   },
-  departments: {
-    type: Schema.Types.ObjectId,
-    ref: "Department",
-  },
+  departments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
 });
 const School = mongoose.model.Schools || School.model("Schools", SchoolSchema);
 export default School;

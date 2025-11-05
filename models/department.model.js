@@ -5,10 +5,12 @@ const DepartmentSchema = new Schema({
     type: String,
     required: true,
   },
-  programmes: {
-    type: Schema.Types.ObjectId,
-    ref: "programme",
-  },
+  programmes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Programme",
+    },
+  ],
 });
 const Department =
   mongoose.model.departments ||

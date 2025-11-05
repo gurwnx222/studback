@@ -34,6 +34,18 @@ export async function GET(NextRequest) {
   try {
     await connectToDB();
     const schools = await School.find({});
+    /*.populate({
+                path: 'departments',
+                populate: {
+                    path: 'programmes',
+                    populate: {
+                        path: 'subjects',
+                        populate: {
+                            path: 'forms'
+                        }
+                    }
+                }
+            }); */
     return NextResponse.json(
       { message: "Schools fetched successfully", schools: schools },
       { status: 200 }

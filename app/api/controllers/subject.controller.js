@@ -29,3 +29,50 @@ export async function POST(NextRequest) {
     );
   }
 }
+//fetching all subjects
+export async function GET(NextRequest) {
+  try {
+    await connectToDB();
+    const subjects = await Subject.find({});
+    return NextResponse.json(
+      { message: "Subjects fetched successfully", subjects: subjects },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+//fetching subjects by semester
+export async function GET_BY_SEMESTER(NextRequest, { params }) {
+  try {
+    await connectToDB();
+    const { semester } = params;
+    const subjects = await Subject.find({ semester: semester });
+    return NextResponse.json(
+      { message: "Subjects fetched successfully", subjects: subjects },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+//deleting a subject by id
+export async function DELETE(NextRequest, { params }) {
+  try {
+    await connectToDB();
+    const { id } = params;
+    const deletedSubject = await Subject.findByIdAndDelete(id);
+    if (!deletedSubject) {
+      return NextResponse.json(
+        { message: "Subject not found" },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json(
+      { message: "Subject deleted successfully", subject: deletedSubject },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}

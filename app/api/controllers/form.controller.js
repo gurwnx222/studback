@@ -57,3 +57,25 @@ export async function GET() {
     );
   }
 }
+//delete form by id
+export async function DELETE(NextRequest) {
+  try {
+    await connectToDB();
+    const { searchParams } = new URL(NextRequest.url);
+    const id = searchParams.get("id");
+    const deletedForm = await Form.findByIdAndDelete(id);
+    if (!deletedForm) {
+      return NextResponse.json({ message: "Form not found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      { message: "Form deleted successfully", Form: deletedForm },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: error.message },
+      { error: error },
+      { status: 500 }
+    );
+  }
+}
