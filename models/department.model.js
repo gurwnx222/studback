@@ -7,7 +7,7 @@ const DepartmentSchema = new Schema({
   },
   programmes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Programme",
     },
   ],

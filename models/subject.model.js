@@ -17,6 +17,11 @@ const SubjectSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Form",
   },
+  status: {
+    type: String,
+    enum: ["pending", "completed"],
+    default: "pending",
+  },
 });
 const Subject =
   mongoose.model.Subjects || Subject.model("Subjects", SubjectSchema);

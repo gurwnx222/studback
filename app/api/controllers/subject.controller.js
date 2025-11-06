@@ -6,7 +6,7 @@ import Subject from "@/models/subject.model";
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, teacher, semester, form } = await NextRequest.json();
+    const { name, teacher, semester, form, status } = await NextRequest.json();
     const existingSubject = await Subject.findOne({ name, semester });
     if (existingSubject) {
       return NextResponse.json(

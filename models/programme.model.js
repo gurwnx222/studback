@@ -5,25 +5,17 @@ const ProgrammeSchema = new Schema({
     type: String,
     required: true,
   },
-  year: {
-    type: String,
-    firstYearSubjects: {
-      type: Schema.model.ObjectId,
-      ref: "Subject",
-    },
-    secondYearSubjects: {
-      type: Schema.model.ObjectId,
-      ref: "Subject",
-    },
-    thirdYearSubjects: {
-      type: Schema.model.ObjectId,
-      ref: "Subject",
-    },
-    fourthYearSubjects: {
-      type: Schema.model.ObjectId,
-      ref: "Subject",
-    },
+  departmentId: {
+    type: Schema.Types.ObjectId,
+    ref: "Department",
+    required: true,
   },
+  subjects: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
 });
 const Programme =
   mongoose.model.Programmes || Programme.model("Programmes", ProgrammeSchema);
