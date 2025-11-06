@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 
 // Reusable Input Component
@@ -114,7 +116,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
+  const router = useRouter();
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -143,25 +145,45 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setLoginSuccess(true);
-      console.log("Login submitted:", { ...formData, rememberMe });
+    try {
+      const response = await axios.post(
+        "/api/users/login",
+        {
+          registrationId: formData.registrationId,
+          password: formData.password,
+        },
+        {
+          withCredentials: true, // Important for handling cookies
+        }
+      );
 
-      setTimeout(() => {
-        setLoginSuccess(false);
-        setFormData({
-          registrationId: "",
-          password: "",
-        });
-        setRememberMe(false);
-      }, 3000);
-    }, 2000);
+      if (response.status === 200) {
+        setLoginSuccess(true);
+
+        // Show success message briefly before redirect
+        setTimeout(() => {
+          setLoginSuccess(false);
+          router.push("/main-screen");
+          router.refresh(); // Refresh to ensure new auth state is recognized
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Invalid credentials. Please try again.";
+      setErrors((prev) => ({
+        ...prev,
+        submit: errorMessage,
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -300,7 +322,12 @@ export default function LoginPage() {
                   [FORGOT_PASSWORD?]
                 </a>
               </div>
-
+              {errors.submit && (
+                <div className="flex items-center gap-2 mb-4 text-red-500 text-xs">
+                  <AlertCircle className="w-3 h-3" />
+                  <span>{errors.submit}</span>
+                </div>
+              )}
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}

@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 
 // Reusable Input Component
@@ -201,6 +203,7 @@ const PasswordInput = ({
 export default function SignUpPage() {
   const [time, setTime] = useState(new Date());
   const [formData, setFormData] = useState({
+    name: "",
     registrationId: "",
     department: "",
     year: "",
@@ -211,7 +214,7 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-
+  const router = useRouter();
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -291,28 +294,47 @@ export default function SignUpPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      console.log("Form submitted:", formData);
+    try {
+      const response = await axios.post(
+        "/api/users/signup",
+        {
+          name: formData.name,
+          registrationId: formData.registrationId,
+          department: formData.department,
+          year: formData.year,
+          programme: formData.programme,
+          password: formData.password,
+        },
+        { withCredentials: true }
+      );
 
-      setTimeout(() => {
-        setSubmitSuccess(false);
-        setFormData({
-          registrationId: "",
-          department: "",
-          year: "",
-          programme: "",
-          password: "",
-          confirmPassword: "",
-        });
-      }, 3000);
-    }, 2000);
+      if (response.status === 201 || response.status === 200) {
+        setSubmitSuccess(true);
+        console.log("Registration successful:", response.data);
+
+        // Show success message for 2 seconds then redirect
+        setTimeout(() => {
+          setSubmitSuccess(false);
+          router.push("/main-screen"); // Redirect to main screen
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Registration failed. Please try again.";
+      setErrors((prev) => ({
+        ...prev,
+        submit: errorMessage,
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

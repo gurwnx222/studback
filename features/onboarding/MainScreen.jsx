@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import { User, LogOut } from "lucide-react";
 import { SubjectCard } from "@/features/components/SubjectCard";
 import { FeedbackForm } from "@/features/components/FeedbackForm";
@@ -10,7 +12,7 @@ import { FeedbackForm } from "@/features/components/FeedbackForm";
 export default function MainPage() {
   const [time, setTime] = useState(new Date());
   const [selectedSubject, setSelectedSubject] = useState(null);
-
+  const router = useRouter();
   // Mock student data
   const studentData = {
     name: "RAJESH KUMAR",
@@ -77,9 +79,20 @@ export default function MainPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    // Add logout logic here
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post("/api/users/logout");
+
+      if (response.status === 200) {
+        console.log("Logged out successfully");
+        // Redirect to login page
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // You can add error handling UI here if needed
+      alert("Failed to logout. Please try again.");
+    }
   };
 
   const pendingFeedbacks = subjects.filter(
