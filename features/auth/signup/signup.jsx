@@ -258,7 +258,9 @@ export default function SignUpPage() {
 
   const validateForm = () => {
     const newErrors = {};
-
+    if (!formData.name) {
+      newErrors.name = "Your name is required";
+    }
     if (!formData.registrationId.trim()) {
       newErrors.registrationId = "Registration ID is required";
     } else if (formData.registrationId.length < 5) {
@@ -414,7 +416,15 @@ export default function SignUpPage() {
                   <span className="tracking-widest">[USER_CREDENTIALS]</span>
                 </div>
               </div>
-
+              <FormInput
+                label="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                error={errors.name}
+                placeholder="Enter your name"
+                required
+              />
               <FormInput
                 label="Registration ID"
                 name="registrationId"
