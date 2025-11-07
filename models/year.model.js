@@ -6,17 +6,17 @@ const yearSchema = new Schema({
     required: true,
   },
   programmeId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Programme",
     required: true,
   },
   subjects: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Subject",
     },
   ],
 });
 
-const Year = mongoose.model.years || Department.model("years", yearSchema);
+const Year = mongoose.models.years || Department.model("years", yearSchema);
 export default Year;

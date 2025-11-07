@@ -205,6 +205,7 @@ export default function SignUpPage() {
   const [formData, setFormData] = useState({
     name: "",
     registrationId: "",
+    school: "",
     department: "",
     year: "",
     programme: "",
@@ -221,6 +222,14 @@ export default function SignUpPage() {
   }, []);
 
   // Form options
+  const schools = [
+    { value: "SOE", label: "School of Engineering" },
+    { value: "SOM", label: "School of Management" },
+    { value: "SOS", label: "School of Sciences" },
+    { value: "SOH", label: "School of Humanities" },
+    { value: "SOL", label: "School of Law" },
+    { value: "SOD", label: "School of Design" },
+  ];
   const departments = [
     { value: "CSE", label: "Computer Science & Engineering" },
     { value: "ECE", label: "Electronics & Communication" },
@@ -260,6 +269,9 @@ export default function SignUpPage() {
     const newErrors = {};
     if (!formData.name) {
       newErrors.name = "Your name is required";
+    }
+    if (!formData.school) {
+      newErrors.school = "Please select a school";
     }
     if (!formData.registrationId.trim()) {
       newErrors.registrationId = "Registration ID is required";
@@ -307,6 +319,7 @@ export default function SignUpPage() {
         {
           name: formData.name,
           registrationId: formData.registrationId,
+          school: formData.school,
           department: formData.department,
           year: formData.year,
           programme: formData.programme,
@@ -434,7 +447,16 @@ export default function SignUpPage() {
                 placeholder="Enter your registration ID"
                 required
               />
-
+              <FormSelect
+                label="School"
+                name="school"
+                value={formData.school}
+                onChange={handleChange}
+                options={schools}
+                error={errors.school}
+                placeholder="Select school"
+                required
+              />
               <FormSelect
                 label="Department"
                 name="department"
