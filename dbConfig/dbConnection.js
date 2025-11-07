@@ -7,10 +7,7 @@ export default async function connectToDB() {
     if (!process.env.MONGODB_URI) {
       return console.log("MONGODB_URI is not defined in environment variables");
     }
-    const connection = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const connection = await mongoose.connect(process.env.MONGODB_URI);
     connection.on("connected", () => {
       console.log("MongoDB connection established successfully");
     });

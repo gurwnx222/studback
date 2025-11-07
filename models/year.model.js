@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const yearSchema = new Schema({
+const YearSchema = new Schema({
   year: {
     type: Number,
     required: true,
@@ -18,5 +18,5 @@ const yearSchema = new Schema({
   ],
 });
 
-const Year = mongoose.models.years || Department.model("years", yearSchema);
+const Year = mongoose.models.years || mongoose.model("years", yearSchema);
 export default Year;

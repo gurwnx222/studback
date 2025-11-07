@@ -41,5 +41,5 @@ const FormSchema = new Schema({
     required: false,
   },
 });
-const Form = mongoose.models.forms || Form.model("forms", FormSchema);
+const Form = mongoose.models.forms || mongoose.model("forms", FormSchema);
 export default Form;

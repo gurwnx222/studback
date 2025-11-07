@@ -18,5 +18,5 @@ const ProgrammeSchema = new Schema({
   ],
 });
 const Programme =
-  mongoose.models.programmes || Programme.model("programmes", ProgrammeSchema);
+  mongoose.models.programmes || mongoose.model("programmes", ProgrammeSchema);
 export default Programme;
