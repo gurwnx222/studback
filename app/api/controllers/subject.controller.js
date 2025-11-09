@@ -7,18 +7,25 @@ import Form from "@/models/form.model";
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, teacher, semester, form, status } = await NextRequest.json();
-    const existingSubject = await Subject.findOne({ name, semester });
-    if (existingSubject) {
-      return NextResponse.json(
-        { message: "Subject already exists" },
-        { status: 400 }
-      );
+    const { name, forms } = await NextRequest.json();
+    const existingSubject = await Subject.findOne({ name });
+    if (!existingSubject) {
+      const Subject = new Subject({ name, forms: [] });
+      await Subject.save();
     }
-    const newSubject = new Subject({ name, teacher, semester, form });
-    await newSubject.save();
+    const formIds = [];
+    for (const frm of forms) {
+      let form = await Form.findOne({ name: frm.name });
+      if (!form) {
+        form = new Form({
+          name: frm.name,
+        });
+        await form.save();
+      }
+      formIds.push(form._id);
+    }
     const response = NextResponse.json(
-      { message: "Subject created successfully", subject: newSubject },
+      { message: "Subject updated successfully", forms: formIds },
       { status: 201 }
     );
     return response;
@@ -34,21 +41,7 @@ export async function POST(NextRequest) {
 export async function GET(NextRequest) {
   try {
     await connectToDB();
-    const subjects = await Subject.find({});
-    return NextResponse.json(
-      { message: "Subjects fetched successfully", subjects: subjects },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
-  }
-}
-//fetching subjects by semester
-export async function GET_BY_SEMESTER(NextRequest, { params }) {
-  try {
-    await connectToDB();
-    const { semester } = params;
-    const subjects = await Subject.find({ semester: semester });
+    const subjects = await Subject.find({}).populate("forms");
     return NextResponse.json(
       { message: "Subjects fetched successfully", subjects: subjects },
       { status: 200 }
@@ -61,8 +54,8 @@ export async function GET_BY_SEMESTER(NextRequest, { params }) {
 export async function DELETE(NextRequest, { params }) {
   try {
     await connectToDB();
-    const { id } = params;
-    const deletedSubject = await Subject.findByIdAndDelete(id);
+    const { _id } = await NextRequest.json();
+    const deletedSubject = await Subject.findByIdAndDelete(_id);
     if (!deletedSubject) {
       return NextResponse.json(
         { message: "Subject not found" },
