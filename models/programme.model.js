@@ -5,10 +5,10 @@ const ProgrammeSchema = new Schema({
     type: String,
     required: true,
   },
-  subjects: [
+  semesters: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Subject",
+      ref: "Semester",
     },
   ],
 });

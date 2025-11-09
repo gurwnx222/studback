@@ -18,7 +18,6 @@ export async function POST(NextRequest) {
     for (const prog of programmes) {
       let programme = await Programme.findOne({ name: prog.name });
       if (!programme) {
-        // Fix: Use prog.name instead of programme.name
         programme = new Programme({
           name: prog.name, // Changed from programme.name to prog.name
           subjects: [],

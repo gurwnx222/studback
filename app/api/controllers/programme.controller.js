@@ -1,12 +1,12 @@
 import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
-import programme from "@/models/programme.model";
-
+import Programme from "@/models/programme.model";
+import Semester from "@/models/semester.model";
 //creating a new programme
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, subjects } = await NextRequest.json();
+    const { name, semester } = await NextRequest.json();
     const existingProgramme = await programme.findOne({ name });
     if (existingProgramme) {
       return NextResponse.json(
@@ -14,10 +14,28 @@ export async function POST(NextRequest) {
         { status: 400 }
       );
     }
-    const newProgramme = new programme({ name, subjects });
-    await newProgramme.save();
+    const semesterIds = [];
+    for (const sem of semester) {
+      let semInstance = await Semester.findOne({ name: sem.name });
+      if (!semInstance) {
+        semInstance = new Semester({ name: sem.name, subjects: [] });
+        await semInstance.save();
+      }
+      semesterIds.push(semInstance._id);
+    }
+    existingProgramme.semesters = [
+      ...existingProgramme.semesters,
+      ...semesterIds,
+    ];
+    await existingProgramme.save();
+    const populatedProgramme = await Programme.findById(
+      existingProgramme._id
+    ).populate("semesters");
     const response = NextResponse.json(
-      { message: "Programme created successfully", programme: newProgramme },
+      {
+        message: "Programme created successfully",
+        semester: populatedProgramme,
+      },
       { status: 201 }
     );
     return response;
