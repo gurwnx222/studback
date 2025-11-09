@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const FormSchema = new Schema({
-  name: {
+  teacherName: {
     type: String,
     required: true,
   },
@@ -39,6 +39,11 @@ const FormSchema = new Schema({
     type: String,
     minLength: [20, "Overall experience must be at least 20 characters long."],
     required: false,
+  },
+  status: {
+    type: String,
+    enum: ["pending", "completed"],
+    default: "pending",
   },
 });
 const Form = mongoose.models.forms || mongoose.model("forms", FormSchema);

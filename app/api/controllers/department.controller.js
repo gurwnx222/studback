@@ -1,7 +1,7 @@
 import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Department from "@/models/department.model";
-
+import Programme from "@/models/programme.model";
 //creating a new department
 export async function POST(NextRequest) {
   try {
@@ -14,10 +14,33 @@ export async function POST(NextRequest) {
         { status: 400 }
       );
     }
-    const newDepartment = new Department({ name, programmes });
-    await newDepartment.save();
+    const programmeIds = [];
+    for (const prog of programmes) {
+      let programme = await Programme.findOne({ name: prog.name });
+      if (!programme) {
+        const newProgramme = new Programme({
+          name: programme.name,
+          subjects: [],
+        });
+        await newProgramme.save();
+      }
+      programmeIds.push(programme._id);
+    }
+    // Update existing department with new programmes
+    existingDepartment.programmes = [
+      ...existingDepartment.programmes,
+      ...programmeIds,
+    ];
+    await existingDepartment.save();
+    const populatedDepartment = await Department.findById(
+      existingDepartment._id
+    ).populate("programmes");
+
     const response = NextResponse.json(
-      { message: "Department created successfully", department: newDepartment },
+      {
+        message: "Department created successfully",
+        department: populatedDepartment,
+      },
       { status: 201 }
     );
     return response;
@@ -33,17 +56,13 @@ export async function POST(NextRequest) {
 export async function GET(NextRequest) {
   try {
     await connectToDB();
-    const departments = await Department.find({});
+    const departments = await Department.find({}).populate("programmes");
     return NextResponse.json(
       { message: "Departments fetched successfully", departments: departments },
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { message: error.message },
-      { error: error },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 //deleting a department

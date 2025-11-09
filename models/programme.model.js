@@ -5,11 +5,6 @@ const ProgrammeSchema = new Schema({
     type: String,
     required: true,
   },
-  departmentId: {
-    type: Schema.Types.ObjectId,
-    ref: "Department",
-    required: true,
-  },
   subjects: [
     {
       type: Schema.Types.ObjectId,

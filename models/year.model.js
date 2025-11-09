@@ -1,13 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
-const YearSchema = new Schema({
-  year: {
-    type: Number,
-    required: true,
-  },
-  programmeId: {
-    type: Schema.Types.ObjectId,
-    ref: "Programme",
+const SemesterSchema = new Schema({
+  name: {
+    type: String,
     required: true,
   },
   subjects: [
@@ -18,5 +13,6 @@ const YearSchema = new Schema({
   ],
 });
 
-const Year = mongoose.models.years || mongoose.model("years", yearSchema);
-export default Year;
+const Semester =
+  mongoose.models.years || mongoose.model("semesters", SemesterSchema);
+export default Semester;

@@ -1,12 +1,13 @@
 import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import School from "@/models/school.model";
+import Department from "@/models/department.model";
 
 //creating a new school
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, department } = await NextRequest.json();
+    const { name, departments } = await NextRequest.json();
     const existingSchool = await School.findOne({ name });
     if (existingSchool) {
       return NextResponse.json(
@@ -14,10 +15,26 @@ export async function POST(NextRequest) {
         { status: 400 }
       );
     }
-    const newSchool = new School({ name, department });
+    //important part to reference departments
+    const departmentIds = [];
+    for (const dept of departments) {
+      let department = await Department.findOne({ name: dept.name });
+      if (!department) {
+        department = new Department({
+          name: dept.name,
+          programmes: [],
+        });
+        await department.save();
+      }
+      departmentIds.push(department._id);
+    }
+    const newSchool = new School({ name, departments: departmentIds });
     await newSchool.save();
+    const populatedSchool = await newSchool
+      .findById(newSchool._id)
+      .populate("departments");
     const response = NextResponse.json(
-      { message: "School created successfully", school: newSchool },
+      { message: "School created successfully", school: populatedSchool },
       { status: 201 }
     );
     return response;
@@ -30,30 +47,16 @@ export async function POST(NextRequest) {
   }
 }
 //fetching all schools
-export async function GET(NextRequest) {
+export async function GET() {
   try {
     await connectToDB();
-    const schools = await School.find({});
-    /*.populate({
-                path: 'departments',
-                populate: {
-                    path: 'programmes',
-                    populate: {
-                        path: 'subjects',
-                        populate: {
-                            path: 'forms'
-                        }
-                    }
-                }
-            }); */
-    return NextResponse.json(
-      { message: "Schools fetched successfully", schools: schools },
-      { status: 200 }
-    );
+
+    const schools = await School.find({}).populate("departments");
+
+    return NextResponse.json({ schools }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { message: error.message },
-      { error: error },
+      { message: "Failed to fetch schools", error: error.message },
       { status: 500 }
     );
   }
