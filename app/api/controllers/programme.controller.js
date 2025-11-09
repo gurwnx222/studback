@@ -7,7 +7,7 @@ export async function POST(NextRequest) {
   try {
     await connectToDB();
     const { name, semester } = await NextRequest.json();
-    const existingProgramme = await programme.findOne({ name });
+    const existingProgramme = await Programme.findOne({ name });
     if (existingProgramme) {
       return NextResponse.json(
         { message: "Programme already exists" },
@@ -51,7 +51,7 @@ export async function POST(NextRequest) {
 export async function GET(NextRequest) {
   try {
     await connectToDB();
-    const programmes = await programme.find({});
+    const programmes = await Programme.find({});
     return NextResponse.json(
       { message: "Programmes fetched successfully", programmes: programmes },
       { status: 200 }
@@ -69,7 +69,7 @@ export async function DELETE(NextRequest) {
   try {
     await connectToDB();
     const { _id } = await NextRequest.json();
-    const deletedProgramme = await programme.findByIdAndDelete(_id);
+    const deletedProgramme = await Programme.findByIdAndDelete(_id);
     if (!deletedProgramme) {
       return NextResponse.json(
         { message: "Programme not found" },

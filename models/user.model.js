@@ -31,7 +31,7 @@ const UserSchema = new Schema({
     required: true,
   },
 });
-const User = mongoose.models.users || mongoose.model("users", UserSchema);
+const User = mongoose.models.user || mongoose.model("user", UserSchema);
 export default User;
 
 const AdminSchema = new Schema({
@@ -45,5 +45,5 @@ const AdminSchema = new Schema({
     required: true,
   },
 });
-const Admin = mongoose.model.admins || mongoose.model("admins", AdminSchema);
+const Admin = mongoose.model.admin || mongoose.model("admin", AdminSchema);
 export { Admin };

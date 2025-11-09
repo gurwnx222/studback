@@ -30,9 +30,9 @@ export async function POST(NextRequest) {
     }
     const newSchool = new School({ name, departments: departmentIds });
     await newSchool.save();
-    const populatedSchool = await newSchool
-      .findById(newSchool._id)
-      .populate("departments");
+    const populatedSchool = await School.findById(newSchool._id).populate(
+      "departments"
+    );
     const response = NextResponse.json(
       { message: "School created successfully", school: populatedSchool },
       { status: 201 }
