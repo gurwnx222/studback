@@ -7,49 +7,48 @@ export async function POST(NextRequest) {
   try {
     await connectToDB();
     const { name, programmes } = await NextRequest.json();
-    const existingDepartment = await Department.findOne({ name });
-    if (existingDepartment) {
-      return NextResponse.json(
-        { message: "Department already exists" },
-        { status: 400 }
-      );
+
+    let existingDepartment = await Department.findOne({ name });
+    if (!existingDepartment) {
+      existingDepartment = new Department({ name, programmes: [] });
+      await existingDepartment.save();
     }
+
     const programmeIds = [];
     for (const prog of programmes) {
       let programme = await Programme.findOne({ name: prog.name });
       if (!programme) {
-        const newProgramme = new Programme({
-          name: programme.name,
+        // Fix: Use prog.name instead of programme.name
+        programme = new Programme({
+          name: prog.name, // Changed from programme.name to prog.name
           subjects: [],
         });
-        await newProgramme.save();
+        await programme.save();
       }
       programmeIds.push(programme._id);
     }
+
     // Update existing department with new programmes
     existingDepartment.programmes = [
       ...existingDepartment.programmes,
       ...programmeIds,
     ];
     await existingDepartment.save();
+
     const populatedDepartment = await Department.findById(
       existingDepartment._id
     ).populate("programmes");
 
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
-        message: "Department created successfully",
+        message: "Department updated successfully",
         department: populatedDepartment,
       },
-      { status: 201 }
+      { status: 200 }
     );
-    return response;
   } catch (error) {
-    return NextResponse.json(
-      { message: error.message },
-      { error: error },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 //fetching all departments

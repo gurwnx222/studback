@@ -7,14 +7,14 @@ export async function POST(NextRequest) {
   try {
     await connectToDB();
     const {
-      name,
+      teacherName,
       teachingEffectiveness,
       communicationSkills,
-      FormKnowledge,
+      subjectKnowledge,
       punctualityAndAvailability,
       overallExperience,
     } = await NextRequest.json();
-    const existingForm = await Form.findOne({ name });
+    const existingForm = await Form.findOne({ teacherName });
     if (existingForm) {
       return NextResponse.json(
         { message: "Form already exists" },
@@ -22,10 +22,10 @@ export async function POST(NextRequest) {
       );
     }
     const newForm = new Form({
-      name,
+      teacherName,
       teachingEffectiveness,
       communicationSkills,
-      FormKnowledge,
+      subjectKnowledge,
       punctualityAndAvailability,
       overallExperience,
     });

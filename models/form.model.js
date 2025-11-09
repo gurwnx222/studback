@@ -29,12 +29,6 @@ const FormSchema = new Schema({
     max: 5,
     required: true,
   },
-  subjectKnowledge: {
-    type: Number,
-    min: 0,
-    max: 5,
-    required: true,
-  },
   overallExperience: {
     type: String,
     minLength: [20, "Overall experience must be at least 20 characters long."],

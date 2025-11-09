@@ -6,7 +6,7 @@ import programme from "@/models/programme.model";
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, year } = await NextRequest.json();
+    const { name, subjects } = await NextRequest.json();
     const existingProgramme = await programme.findOne({ name });
     if (existingProgramme) {
       return NextResponse.json(
@@ -14,7 +14,7 @@ export async function POST(NextRequest) {
         { status: 400 }
       );
     }
-    const newProgramme = new programme({ name, year });
+    const newProgramme = new programme({ name, subjects });
     await newProgramme.save();
     const response = NextResponse.json(
       { message: "Programme created successfully", programme: newProgramme },
