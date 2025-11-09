@@ -8,11 +8,9 @@ export async function POST(NextRequest) {
     await connectToDB();
     const { name, semester } = await NextRequest.json();
     const existingProgramme = await Programme.findOne({ name });
-    if (existingProgramme) {
-      return NextResponse.json(
-        { message: "Programme already exists" },
-        { status: 400 }
-      );
+    if (!existingProgramme) {
+      const existingProgramme = new Programme({ name, semester: [] });
+      await existingProgramme.save();
     }
     const semesterIds = [];
     for (const sem of semester) {
@@ -23,7 +21,7 @@ export async function POST(NextRequest) {
       }
       semesterIds.push(semInstance._id);
     }
-    existingProgramme.semesters = [
+    existingProgramme.semester = [
       ...existingProgramme.semesters,
       ...semesterIds,
     ];

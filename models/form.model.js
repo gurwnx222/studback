@@ -40,5 +40,5 @@ const FormSchema = new Schema({
     default: "pending",
   },
 });
-const Form = mongoose.models.form || mongoose.model("form", FormSchema);
+const Form = mongoose.models.Form || mongoose.model("Form", FormSchema);
 export default Form;

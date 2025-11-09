@@ -12,5 +12,5 @@ const SchoolSchema = new Schema({
     },
   ],
 });
-const School = mongoose.models.school || mongoose.model("school", SchoolSchema);
+const School = mongoose.models.School || mongoose.model("School", SchoolSchema);
 export default School;

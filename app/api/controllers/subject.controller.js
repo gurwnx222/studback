@@ -2,6 +2,7 @@ import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Subject from "@/models/subject.model";
 import Form from "@/models/form.model";
+import { populate } from "dotenv";
 
 //creating a new subject
 export async function POST(NextRequest) {
@@ -24,8 +25,13 @@ export async function POST(NextRequest) {
       }
       formIds.push(form._id);
     }
+    existingSubject.forms = [...existingSubject.forms, ...formIds];
+    await existingSubject.save();
+    const populatedSubject = await Subject.findById(
+      existingSubject._id
+    ).populate("forms");
     const response = NextResponse.json(
-      { message: "Subject updated successfully", forms: formIds },
+      { message: "Subject updated successfully", forms: populatedSubject },
       { status: 201 }
     );
     return response;
