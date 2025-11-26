@@ -37,16 +37,7 @@ const TeacherFormCard = ({ form, onEdit, onDelete }) => {
           <FileText className="w-5 h-5 text-indigo-400" />
           <div>
             <h5 className="text-sm font-bold text-white">{form.teacherName}</h5>
-            <p className="text-xs text-zinc-600">
-              {form.subjectCode} - {form.subjectName}
-            </p>
-            <div className="flex items-center gap-3 mt-1">
-              <span className="text-xs text-zinc-500">
-                {form.credits} Credits
-              </span>
-              <span className="text-xs text-zinc-700">|</span>
-              <span className="text-xs text-zinc-500">{form.schedule}</span>
-            </div>
+            <p className="text-xs text-zinc-600">{form.subjectName}</p>
           </div>
         </div>
 

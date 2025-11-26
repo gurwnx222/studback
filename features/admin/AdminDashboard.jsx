@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   Building2,
   GraduationCap,
@@ -18,6 +18,8 @@ import CollapsibleSection from "./components/CollapsibleSection";
 import TeacherFormCard from "./components/TeacherFormCard";
 import useAdminData from "./hooks/useAdminData";
 
+//backend modules
+import axios from "axios";
 /**
  * AdminDashboard - Main Component
  *
@@ -63,12 +65,8 @@ export default function AdminDashboard() {
 
   // Form data for modal inputs
   const [formData, setFormData] = useState({
-    name: "",
-    code: "",
     teacherName: "",
     subjectName: "",
-    subjectCode: "",
-    credits: "",
     schedule: "",
   });
 
@@ -97,7 +95,7 @@ export default function AdminDashboard() {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
+  useEffect(() => {}, []);
   // Modal management functions
   const openModal = (type, mode = "add", data = null, parentId = null) => {
     setModalState({ isOpen: true, type, mode, data, parentId });
@@ -121,12 +119,8 @@ export default function AdminDashboard() {
 
   const resetFormData = () => {
     setFormData({
-      name: "",
-      code: "",
       teacherName: "",
       subjectName: "",
-      subjectCode: "",
-      credits: "",
       schedule: "",
     });
   };
@@ -246,7 +240,7 @@ export default function AdminDashboard() {
               <CollapsibleSection
                 key={school.id}
                 icon={Building2}
-                title={`${school.name} (${school.code})`}
+                title={`${school.name}`}
                 count={school.departments.length}
                 isOpen={openSchools[school.id]}
                 onToggle={() => toggleSchool(school.id)}
@@ -416,24 +410,6 @@ export default function AdminDashboard() {
                 setFormData({ ...formData, subjectName: e.target.value })
               }
               placeholder="e.g., Data Structures & Algorithms"
-              required
-            />
-            <FormInput
-              label="Subject Code"
-              value={formData.subjectCode}
-              onChange={(e) =>
-                setFormData({ ...formData, subjectCode: e.target.value })
-              }
-              placeholder="e.g., CSE-301"
-              required
-            />
-            <FormInput
-              label="Credits"
-              value={formData.credits}
-              onChange={(e) =>
-                setFormData({ ...formData, credits: e.target.value })
-              }
-              placeholder="e.g., 4"
               required
             />
             <FormInput

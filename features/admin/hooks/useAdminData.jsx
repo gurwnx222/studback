@@ -78,7 +78,9 @@ const useAdminData = () => {
   ]);
 
   // School operations
-  const addSchool = (schoolData) => {
+  const addSchool = async (schoolData) => {
+    //writing backend logic to add school
+
     const newSchool = {
       id: "s" + Date.now(),
       ...schoolData,

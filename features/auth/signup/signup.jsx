@@ -224,21 +224,25 @@ export default function SignUpPage() {
   // Form options
   const schools = [
     { value: "SOE", label: "School of Engineering" },
-    { value: "SOM", label: "School of Management" },
+    {
+      /*  { value: "SOM", label: "School of Management" },
     { value: "SOS", label: "School of Sciences" },
     { value: "SOH", label: "School of Humanities" },
     { value: "SOL", label: "School of Law" },
-    { value: "SOD", label: "School of Design" },
+    { value: "SOD", label: "School of Design" }, */
+    },
   ];
   const departments = [
     { value: "CSE", label: "Computer Science & Engineering" },
-    { value: "ECE", label: "Electronics & Communication" },
+    {
+      /* { value: "ECE", label: "Electronics & Communication" },
     { value: "ME", label: "Mechanical Engineering" },
     { value: "CE", label: "Civil Engineering" },
     { value: "EE", label: "Electrical Engineering" },
     { value: "IT", label: "Information Technology" },
     { value: "BBA", label: "Business Administration" },
-    { value: "MBA", label: "Master of Business Administration" },
+    { value: "MBA", label: "Master of Business Administration" }, */
+    },
   ];
 
   const years = [
@@ -250,11 +254,13 @@ export default function SignUpPage() {
 
   const programmes = [
     { value: "BTECH", label: "B.Tech" },
-    { value: "MTECH", label: "M.Tech" },
+    {
+      /*  { value: "MTECH", label: "M.Tech" },
     { value: "BBA", label: "BBA" },
     { value: "MBA", label: "MBA" },
     { value: "BSC", label: "B.Sc" },
-    { value: "MSC", label: "M.Sc" },
+    { value: "MSC", label: "M.Sc" }, */
+    },
   ];
 
   const handleChange = (e) => {
