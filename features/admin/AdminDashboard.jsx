@@ -290,7 +290,7 @@ export default function AdminDashboard() {
                 {/* Departments */}
                 {school.departments.map((dept) => (
                   <CollapsibleSection
-                    key={dept._id}
+                    key={dept?._id || dept.id}
                     icon={GraduationCap}
                     title={`${dept.name}`}
                     count={dept?.programmes?.length}

@@ -157,6 +157,48 @@ const useAdminData = () => {
           console.log("Adding new department");
           console.log("New Department added", response.data);
         }
+        const returned = response?.data?.department || {};
+        const created = response?.data?.school?.departments?.programmes
+          ? response?.data?.school?.departments
+          : { programmes: [] };
+        const serverSchool = response?.data?.school || null;
+        const newDepartment = {
+          id: returned._id || returned.id || `local_${Date.now()}`,
+          ...deptData,
+          programmes: Array.isArray(created.programmes)
+            ? created.programmes.map((p) =>
+                typeof p === "object" ? { id: p._id || p.id, name: p.name } : p
+              )
+            : [],
+        };
+        console.log("New Department to add:", newDepartment);
+        setSchools((prev) =>
+          prev.map((s) => {
+            if (s.id !== schoolId) return s;
+
+            // If server returned the full updated school, use its departments (normalized)
+            if (serverSchool && Array.isArray(serverSchool.departments)) {
+              return {
+                ...s,
+                departments: serverSchool.departments.map((d) => ({
+                  id: d._id || d.id || `d_${Date.now()}`,
+                  ...d,
+                  programmes: Array.isArray(d.programmes)
+                    ? d.programmes.map((p) => ({
+                        id: p._id || p.id || `p_${Date.now()}`,
+                        ...p,
+                      }))
+                    : [],
+                })),
+              };
+            }
+
+            return {
+              ...s,
+              departments: [...(s.departments || []), newDepartment],
+            };
+          })
+        );
       } catch (err) {
         console.error(
           "Adding new department failed:",
@@ -165,24 +207,7 @@ const useAdminData = () => {
         return;
       }
     };
-    setSchools(
-      schools.map((school) => {
-        if (school.id === schoolId) {
-          return {
-            ...school,
-            departments: [
-              ...school.departments,
-              {
-                name: departments?.name,
-                ...deptData,
-                programmes: [],
-              },
-            ],
-          };
-        }
-        return school;
-      })
-    );
+    addNewDepartment();
   };
 
   const updateDepartment = (deptId, deptData) => {
