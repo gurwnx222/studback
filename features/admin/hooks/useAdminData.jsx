@@ -1,5 +1,6 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+//adding backend deps
+import axios from "axios";
 /**
  * useAdminData Hook
  *
@@ -37,56 +38,97 @@ import { useState } from "react";
  */
 
 const useAdminData = () => {
-  // Initial mock data
-  const [schools, setSchools] = useState([
-    {
-      id: "s1",
-      name: "School of Engineering",
-      code: "SOE",
-      departments: [
-        {
-          id: "d1",
-          name: "Computer Science & Engineering",
-          code: "CSE",
-          programmes: [
-            {
-              id: "p1",
-              name: "B.Tech",
-              code: "BTECH",
-              years: [
-                {
-                  id: "y1",
-                  name: "Third Year",
-                  code: "Y3",
-                  forms: [
-                    {
-                      id: "f1",
-                      teacherName: "Dr. Priya Sharma",
-                      subjectName: "Data Structures & Algorithms",
-                      subjectCode: "CSE-301",
-                      credits: "4",
-                      schedule: "Mon, Wed, Fri - 9:00 AM",
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+  const [schools, setSchools] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // School operations
+  // Fetch all schools with related data on mount
+  useEffect(() => {
+    const fetchSchools = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("/api/routes/school");
+        console.log("Fetched schools:", response.data);
+
+        // Normalise server response: handle { schools: [...] } shape and map _id -> id
+        const payload = response.data;
+        const arr = Array.isArray(payload) ? payload : payload?.schools || [];
+
+        const normalize = (item) => {
+          if (!item || typeof item !== "object") return item;
+          const { _id, id, departments, programmes, years, forms, ...rest } =
+            item;
+          const normalized = {
+            id: _id || id || `local_${Date.now()}`,
+            ...rest,
+          };
+          if (Array.isArray(departments))
+            normalized.departments = departments.map(normalize);
+          if (Array.isArray(programmes))
+            normalized.programmes = programmes.map(normalize);
+          if (Array.isArray(years)) normalized.years = years.map(normalize);
+          if (Array.isArray(forms)) normalized.forms = forms.map(normalize);
+          return normalized;
+        };
+
+        setSchools(arr.map(normalize));
+        setError(null);
+      } catch (err) {
+        console.error(
+          "Failed to fetch schools:",
+          err?.response?.data || err?.message
+        );
+        setError(err?.message);
+        setSchools([]); // Fallback to empty array
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSchools();
+  }, []);
+
+  // ...existing code...
+
   const addSchool = async (schoolData) => {
     //writing backend logic to add school
-
-    const newSchool = {
-      id: "s" + Date.now(),
-      ...schoolData,
-      departments: [],
+    const addNewSchool = async () => {
+      try {
+        // using post request via axios
+        const response = await axios.post("/api/routes/school", {
+          name: schoolData?.name,
+          departments: [], // Initialize with empty departments array
+        });
+        if (response.status === 201 || response.status === 200) {
+          // <-- use server _id mapped to id
+          const returned = response?.data?.school || {};
+          const created = response?.data?.school?.departments
+            ? response.data.school
+            : { departments: [] };
+          const newSchool = {
+            id: returned._id || returned.id || `local_${Date.now()}`,
+            ...schoolData,
+            departments: Array.isArray(created.departments)
+              ? created.departments.map((d) =>
+                  typeof d === "object"
+                    ? { id: d._id || d.id, name: d.name }
+                    : d
+                )
+              : [],
+          };
+          console.log("Adding new school");
+          console.log("New School added", response.data);
+          setSchools((prev) => [...prev, newSchool]);
+        }
+      } catch (err) {
+        console.error(
+          "Adding new school failed:",
+          err?.response?.data || err?.message
+        );
+        return;
+      }
     };
-    setSchools([...schools, newSchool]);
+    addNewSchool();
   };
 
   const updateSchool = (schoolId, schoolData) => {
@@ -105,6 +147,24 @@ const useAdminData = () => {
 
   // Department operations
   const addDepartment = (schoolId, deptData) => {
+    const addNewDepartment = async () => {
+      try {
+        const response = await axios.post("/api/routes/department", {
+          name: deptData?.name,
+          programmes: [], // Initialize with empty programmes array
+        });
+        if (response.status === 201 || response.status === 200) {
+          console.log("Adding new department");
+          console.log("New Department added", response.data);
+        }
+      } catch (err) {
+        console.error(
+          "Adding new department failed:",
+          err?.response?.data || err?.message
+        );
+        return;
+      }
+    };
     setSchools(
       schools.map((school) => {
         if (school.id === schoolId) {
@@ -113,7 +173,7 @@ const useAdminData = () => {
             departments: [
               ...school.departments,
               {
-                id: "d" + Date.now(),
+                name: departments?.name,
                 ...deptData,
                 programmes: [],
               },
@@ -334,6 +394,8 @@ const useAdminData = () => {
 
   return {
     schools,
+    loading,
+    error,
     addSchool,
     updateSchool,
     deleteSchool,

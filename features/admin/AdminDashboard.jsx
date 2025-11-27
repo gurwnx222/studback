@@ -17,9 +17,6 @@ import FormInput from "./components/FormInput";
 import CollapsibleSection from "./components/CollapsibleSection";
 import TeacherFormCard from "./components/TeacherFormCard";
 import useAdminData from "./hooks/useAdminData";
-
-//backend modules
-import axios from "axios";
 /**
  * AdminDashboard - Main Component
  *
@@ -65,6 +62,7 @@ export default function AdminDashboard() {
 
   // Form data for modal inputs
   const [formData, setFormData] = useState({
+    name: "",
     teacherName: "",
     subjectName: "",
     schedule: "",
@@ -73,6 +71,8 @@ export default function AdminDashboard() {
   // Get data management functions from custom hook
   const {
     schools,
+    loading,
+    error,
     addSchool,
     updateSchool,
     deleteSchool,
@@ -95,7 +95,28 @@ export default function AdminDashboard() {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  useEffect(() => {}, []);
+  // loading check before rendering
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-900">
+        <div className="text-white text-center">
+          <div className="text-lg mb-2">LOADING_SCHOOLS</div>
+          <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-900">
+        <div className="text-red-500 text-center">
+          <div className="text-lg mb-2">ERROR_LOADING_SCHOOLS</div>
+          <div className="text-sm">{error}</div>
+        </div>
+      </div>
+    );
+  }
   // Modal management functions
   const openModal = (type, mode = "add", data = null, parentId = null) => {
     setModalState({ isOpen: true, type, mode, data, parentId });
@@ -119,6 +140,7 @@ export default function AdminDashboard() {
 
   const resetFormData = () => {
     setFormData({
+      name: "",
       teacherName: "",
       subjectName: "",
       schedule: "",
@@ -238,13 +260,15 @@ export default function AdminDashboard() {
           <div className="space-y-2">
             {schools.map((school) => (
               <CollapsibleSection
-                key={school.id}
+                key={school?._id || school.id}
                 icon={Building2}
-                title={`${school.name}`}
-                count={school.departments.length}
-                isOpen={openSchools[school.id]}
-                onToggle={() => toggleSchool(school.id)}
-                onAdd={() => openModal("department", "add", null, school.id)}
+                title={`${school?.name}`}
+                count={school?.departments?.length}
+                isOpen={openSchools[school._id || school.id]}
+                onToggle={() => toggleSchool(school?._id || school.id)}
+                onAdd={() =>
+                  openModal("department", "add", null, school.id || school._id)
+                }
                 level={0}
               >
                 {/* School Actions */}
@@ -266,27 +290,27 @@ export default function AdminDashboard() {
                 {/* Departments */}
                 {school.departments.map((dept) => (
                   <CollapsibleSection
-                    key={dept.id}
+                    key={dept._id}
                     icon={GraduationCap}
-                    title={`${dept.name} (${dept.code})`}
-                    count={dept.programmes.length}
-                    isOpen={openDepartments[dept.id]}
-                    onToggle={() => toggleDepartment(dept.id)}
-                    onAdd={() => openModal("programme", "add", null, dept.id)}
+                    title={`${dept.name}`}
+                    count={dept?.programmes?.length}
+                    isOpen={openDepartments[dept._id]}
+                    onToggle={() => toggleDepartment(dept._id)}
+                    onAdd={() => openModal("programme", "add", null, dept._id)}
                     level={1}
                   >
                     {/* Department Actions */}
                     <div className="flex items-center justify-end gap-2 mb-4">
                       <button
                         onClick={() =>
-                          openModal("department", "edit", dept, school.id)
+                          openModal("department", "edit", dept, school._id)
                         }
                         className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                       >
                         EDIT_DEPT
                       </button>
                       <button
-                        onClick={() => deleteDepartment(dept.id)}
+                        onClick={() => deleteDepartment(dept._id)}
                         className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
                       >
                         DELETE_DEPT
@@ -296,27 +320,27 @@ export default function AdminDashboard() {
                     {/* Programmes */}
                     {dept.programmes.map((prog) => (
                       <CollapsibleSection
-                        key={prog.id}
+                        key={prog?._id}
                         icon={BookOpen}
-                        title={`${prog.name} (${prog.code})`}
-                        count={prog.years.length}
-                        isOpen={openProgrammes[prog.id]}
-                        onToggle={() => toggleProgramme(prog.id)}
-                        onAdd={() => openModal("year", "add", null, prog.id)}
+                        title={`${prog?.name}`}
+                        count={prog?.years?.length}
+                        isOpen={openProgrammes[prog?._id]}
+                        onToggle={() => toggleProgramme(prog?._id)}
+                        onAdd={() => openModal("year", "add", null, prog?._id)}
                         level={2}
                       >
                         {/* Programme Actions */}
                         <div className="flex items-center justify-end gap-2 mb-4">
                           <button
                             onClick={() =>
-                              openModal("programme", "edit", prog, dept.id)
+                              openModal("programme", "edit", prog, dept._id)
                             }
                             className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                           >
                             EDIT_PROG
                           </button>
                           <button
-                            onClick={() => deleteProgramme(prog.id)}
+                            onClick={() => deleteProgramme(prog._id)}
                             className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
                           >
                             DELETE_PROG
@@ -324,16 +348,16 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Years */}
-                        {prog.years.map((year) => (
+                        {prog?.years.map((year) => (
                           <CollapsibleSection
-                            key={year.id}
+                            key={year?._id}
                             icon={Users}
-                            title={`${year.name} (${year.code})`}
-                            count={year.forms.length}
-                            isOpen={openYears[year.id]}
-                            onToggle={() => toggleYear(year.id)}
+                            title={`${year?.name}`}
+                            count={year?.forms?.length}
+                            isOpen={openYears[year?._id]}
+                            onToggle={() => toggleYear(year?._id)}
                             onAdd={() =>
-                              openModal("form", "add", null, year.id)
+                              openModal("form", "add", null, year?._id)
                             }
                             level={3}
                           >
@@ -341,14 +365,14 @@ export default function AdminDashboard() {
                             <div className="flex items-center justify-end gap-2 mb-4">
                               <button
                                 onClick={() =>
-                                  openModal("year", "edit", year, prog.id)
+                                  openModal("year", "edit", year, prog._id)
                                 }
                                 className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                               >
                                 EDIT_YEAR
                               </button>
                               <button
-                                onClick={() => deleteYear(year.id)}
+                                onClick={() => deleteYear(year._id)}
                                 className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
                               >
                                 DELETE_YEAR
@@ -356,15 +380,15 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* Teacher Forms */}
-                            {year.forms.length > 0 ? (
+                            {year?.forms.length > 0 ? (
                               year.forms.map((form) => (
                                 <TeacherFormCard
-                                  key={form.id}
+                                  key={form._id}
                                   form={form}
                                   onEdit={() =>
-                                    openModal("form", "edit", form, year.id)
+                                    openModal("form", "edit", form, year._id)
                                   }
-                                  onDelete={() => deleteForm(form.id)}
+                                  onDelete={() => deleteForm(form._id)}
                                 />
                               ))
                             ) : (
@@ -432,15 +456,6 @@ export default function AdminDashboard() {
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder={`Enter ${modalState.type} name`}
-              required
-            />
-            <FormInput
-              label="Code"
-              value={formData.code}
-              onChange={(e) =>
-                setFormData({ ...formData, code: e.target.value })
-              }
-              placeholder={`Enter ${modalState.type} code`}
               required
             />
           </>
