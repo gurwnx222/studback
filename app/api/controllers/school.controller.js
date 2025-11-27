@@ -7,7 +7,10 @@ import Department from "@/models/department.model";
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, departments } = await NextRequest.json();
+    const {
+      name,
+      departments: [],
+    } = await NextRequest.json();
     const existingSchool = await School.findOne({ name });
     if (existingSchool) {
       return NextResponse.json(
@@ -15,20 +18,7 @@ export async function POST(NextRequest) {
         { status: 400 }
       );
     }
-    //important part to reference departments
-    const departmentIds = [];
-    for (const dept of departments) {
-      let department = await Department.findOne({ name: dept.name });
-      if (!department) {
-        department = new Department({
-          name: dept.name,
-          programmes: [],
-        });
-        await department.save();
-      }
-      departmentIds.push(department._id);
-    }
-    const newSchool = new School({ name, departments: departmentIds });
+    const newSchool = new School({ name, departments: [] });
     await newSchool.save();
     const populatedSchool = await School.findById(newSchool._id).populate(
       "departments"

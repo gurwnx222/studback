@@ -1,43 +1,39 @@
 import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Department from "@/models/department.model";
-import Programme from "@/models/programme.model";
+import School from "@/models/school.model";
+
 //creating a new department
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, programmes } = await NextRequest.json();
+    const {
+      schoolId,
+      name,
+      programmes: [],
+    } = await NextRequest.json();
 
     let existingDepartment = await Department.findOne({ name });
     if (!existingDepartment) {
       existingDepartment = new Department({ name, programmes: [] });
       await existingDepartment.save();
     }
-
-    const programmeIds = [];
-    for (const prog of programmes) {
-      let programme = await Programme.findOne({ name: prog.name });
-      if (!programme) {
-        programme = new Programme({
-          name: prog.name, // Changed from programme.name to prog.name
-          subjects: [],
-        });
-        await programme.save();
+    // Important: Linking department to school
+    if (schoolId) {
+      const schoolDoc = await School.findById(schoolId);
+      if (schoolDoc) {
+        const isDepartmentLinked = schoolDoc.departments.includes(
+          existingDepartment._id
+        );
+        if (!isDepartmentLinked) {
+          schoolDoc.departments.push(existingDepartment._id);
+          await schoolDoc.save();
+        }
       }
-      programmeIds.push(programme._id);
     }
-
-    // Update existing department with new programmes
-    existingDepartment.programmes = [
-      ...existingDepartment.programmes,
-      ...programmeIds,
-    ];
-    await existingDepartment.save();
-
     const populatedDepartment = await Department.findById(
       existingDepartment._id
-    ).populate("programmes");
-
+    );
     return NextResponse.json(
       {
         message: "Department updated successfully",
