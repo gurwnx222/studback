@@ -52,17 +52,17 @@ const StatsCard = ({ value, label, color = "text-white" }) => {
 
 export const StatsDashboard = ({ schools }) => {
   // Calculate totals
-  const totalSchools = schools.length;
+  const totalSchools = schools?.length;
 
   const totalDepartments = schools.reduce(
-    (acc, school) => acc + school.departments.length,
+    (acc, school) => acc + school?.departments?.length,
     0
   );
 
   const totalProgrammes = schools.reduce(
     (acc, school) =>
       acc +
-      school.departments.reduce((a, dept) => a + dept.programmes.length, 0),
+      school.departments.reduce((a, dept) => a + dept?.programmes?.length, 0),
     0
   );
 
@@ -74,7 +74,10 @@ export const StatsDashboard = ({ schools }) => {
           a +
           dept.programmes.reduce(
             (b, prog) =>
-              b + prog.years.reduce((c, year) => c + year.forms.length, 0),
+              b +
+              prog.semesters.reduce(
+                (c, semester) => c + (semester.forms.length ?? 0)
+              ),
             0
           ),
         0

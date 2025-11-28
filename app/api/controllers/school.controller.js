@@ -1,7 +1,11 @@
 import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
-import School from "@/models/school.model";
+import School from "@/models/school.model"; // or wherever your models are
 import Department from "@/models/department.model";
+import Programme from "@/models/programme.model";
+import Semester from "@/models/semester.model";
+import Subject from "@/models/subject.model";
+import Form from "@/models/form.model";
 
 //creating a new school
 export async function POST(NextRequest) {
@@ -41,7 +45,21 @@ export async function GET() {
   try {
     await connectToDB();
 
-    const schools = await School.find({}).populate("departments");
+    const schools = await School.find({}).populate({
+      path: "departments",
+      populate: {
+        path: "programmes",
+        populate: {
+          path: "semesters",
+          populate: {
+            path: "subjects",
+            populate: {
+              path: "forms",
+            },
+          },
+        },
+      },
+    });
 
     return NextResponse.json({ schools }, { status: 200 });
   } catch (error) {

@@ -235,27 +235,76 @@ const useAdminData = () => {
 
   // Programme operations
   const addProgramme = (deptId, progData) => {
-    setSchools(
-      schools.map((school) => ({
-        ...school,
-        departments: school.departments.map((dept) => {
-          if (dept.id === deptId) {
-            return {
-              ...dept,
-              programmes: [
-                ...dept.programmes,
-                {
-                  id: "p" + Date.now(),
-                  ...progData,
-                  years: [],
-                },
-              ],
-            };
-          }
-          return dept;
-        }),
-      }))
-    );
+    const addNewProgramme = async () => {
+      try {
+        // Pass deptId to backend so programme is linked to the correct department
+        const response = await axios.post("/api/routes/programme", {
+          name: progData?.name,
+          semesters: [], // Initialize with empty semesters array
+          departmentId: deptId,
+        });
+        if (response.status === 201 || response.status === 200) {
+          console.log("Adding new programme");
+          console.log("New Programme added", response.data);
+        }
+        const returned = response?.data?.programme || {};
+        const created = response?.data?.programme?.semesters
+          ? response?.data?.programme
+          : { semesters: [] };
+        const serverDepartment = response?.data?.department || null;
+        const newProgramme = {
+          id: returned._id || returned.id || `local_${Date.now()}`,
+          ...progData,
+          semesters: Array.isArray(created.semesters)
+            ? created.semesters.map((s) =>
+                typeof s === "object" ? { id: s._id || s.id, name: s.name } : s
+              )
+            : [],
+        };
+
+        setSchools((prevSchools) =>
+          prevSchools.map((school) => ({
+            ...school,
+            departments: school.departments.map((dept) => {
+              if (dept.id === deptId) {
+                // If server returned the full updated department, use its programmes (normalized)
+                if (
+                  serverDepartment &&
+                  Array.isArray(serverDepartment.programmes)
+                ) {
+                  return {
+                    ...dept,
+                    programmes: serverDepartment.programmes.map((p) => ({
+                      id: p._id || p.id || `p_${Date.now()}`,
+                      ...p,
+                      semesters: Array.isArray(p.semesters)
+                        ? p.semesters.map((s) => ({
+                            id: s._id || s.id || `s_${Date.now()}`,
+                            ...s,
+                          }))
+                        : [],
+                    })),
+                  };
+                }
+                // Otherwise, just add the new programme locally
+                return {
+                  ...dept,
+                  programmes: [...(dept.programmes || []), newProgramme],
+                };
+              }
+              return dept;
+            }),
+          }))
+        );
+      } catch (err) {
+        console.error(
+          "Adding new programme failed:",
+          err?.response?.data || err?.message
+        );
+        return;
+      }
+    };
+    addNewProgramme();
   };
 
   const updateProgramme = (progId, progData) => {
@@ -288,30 +337,74 @@ const useAdminData = () => {
 
   // Semester operations
   const addSemester = (progId, semesterData) => {
-    setSchools(
-      schools.map((school) => ({
-        ...school,
-        departments: school.departments.map((dept) => ({
-          ...dept,
-          programmes: dept.programmes.map((prog) => {
-            if (prog.id === progId) {
-              return {
-                ...prog,
-                semesters: [
-                  ...(prog.semesters || []),
-                  {
-                    id: "s" + Date.now(),
-                    ...semesterData,
-                    forms: [],
-                  },
-                ],
-              };
-            }
-            return prog;
-          }),
-        })),
-      }))
-    );
+    const addNewSemester = async () => {
+      try {
+        // Pass deptId to backend so programme is linked to the correct department
+        const response = await axios.post("/api/routes/semester", {
+          name: semesterData?.name,
+          subjects: [], // Initialize with empty semesters array
+          programmeId: progId,
+        });
+
+        if (response.status === 201 || response.status === 200) {
+          console.log("Adding new semester");
+          console.log("New Semester added", response.data);
+        }
+        const returned = response?.data?.semester || {};
+        const created = response?.data?.semester?.subjects
+          ? response?.data?.semester
+          : { subjects: [] };
+        const serverSemester = response?.data?.semester || null;
+        const newProgramme = {
+          id: returned._id || returned.id || `local_${Date.now()}`,
+          ...semesterData,
+          subjects: Array.isArray(created.subjects)
+            ? created.subjects.map((s) =>
+                typeof s === "object" ? { id: s._id || s.id, name: s.name } : s
+              )
+            : [],
+        };
+
+        setSchools((prevSchools) =>
+          prevSchools.map((school) => ({
+            ...school,
+            departments: school.departments.map((dept) => ({
+              ...dept,
+              programmes: dept.programmes.map((prog) => {
+                if (prog.id === progId) {
+                  // If server returned the full updated programme, use its semesters (normalized)
+                  if (
+                    serverSemester &&
+                    Array.isArray(serverSemester.semesters)
+                  ) {
+                    return {
+                      ...prog,
+                      semesters: serverSemester.semesters.map((s) => ({
+                        id: s._id || s.id || `s_${Date.now()}`,
+                        ...s,
+                      })),
+                    };
+                  }
+                  // Otherwise, just add the new semester locally
+                  return {
+                    ...prog,
+                    semesters: [...(prog.semesters || []), newProgramme],
+                  };
+                }
+                return prog;
+              }),
+            })),
+          }))
+        );
+      } catch (err) {
+        console.error(
+          "Adding new semester failed:",
+          err?.response?.data || err?.message
+        );
+        return;
+      }
+    };
+    addNewSemester();
   };
 
   const updateSemester = (semesterId, semesterData) => {
@@ -354,32 +447,72 @@ const useAdminData = () => {
 
   // Teacher Form operations (now under semesters)
   const addForm = (semesterId, formData) => {
-    setSchools(
-      schools.map((school) => ({
-        ...school,
-        departments: school.departments.map((dept) => ({
-          ...dept,
-          programmes: dept.programmes.map((prog) => ({
-            ...prog,
-            semesters: (prog.semesters || []).map((semester) => {
-              if (semester.id === semesterId) {
-                return {
-                  ...semester,
-                  forms: [
-                    ...(semester.forms || []),
-                    {
-                      id: "f" + Date.now(),
-                      ...formData,
-                    },
-                  ],
-                };
-              }
-              return semester;
-            }),
-          })),
-        })),
-      }))
-    );
+    const addNewForm = async () => {
+      try {
+        // Pass deptId to backend so programme is linked to the correct department
+        const response = await axios.post("/api/routes/form", {
+          name: formData?.name,
+          semesterId: semesterId,
+        });
+        if (response.status === 201 || response.status === 200) {
+          console.log("Adding new form");
+          console.log("New form added", response.data);
+        }
+        const returned = response?.data?.form || {};
+        const created = response?.data?.subject?.forms
+          ? response?.data?.subject
+          : { forms: [] };
+        const serverSubject = response?.data?.form || null;
+        const newProgramme = {
+          id: returned._id || returned.id || `local_${Date.now()}`,
+          ...formData,
+          forms: Array.isArray(created.forms)
+            ? created.forms.map((f) =>
+                typeof f === "object" ? { id: f._id || f.id, name: f.name } : f
+              )
+            : [],
+        };
+
+        setSchools((prevSchools) =>
+          prevSchools.map((school) => ({
+            ...school,
+            departments: school.departments.map((dept) => ({
+              ...dept,
+              programmes: dept.programmes.map((prog) => ({
+                ...prog,
+                semesters: (prog.semesters || []).map((semester) => {
+                  if (semester.id === semesterId) {
+                    // If server returned the full updated semester, use its forms (normalized)
+                    if (serverSubject && Array.isArray(serverSubject.forms)) {
+                      return {
+                        ...semester,
+                        forms: serverSubject.forms.map((f) => ({
+                          id: f._id || f.id || `f_${Date.now()}`,
+                          ...f,
+                        })),
+                      };
+                    }
+                    // Otherwise, just add the new form locally
+                    return {
+                      ...semester,
+                      forms: [...(semester.forms || []), newProgramme],
+                    };
+                  }
+                  return semester;
+                }),
+              })),
+            })),
+          }))
+        );
+      } catch (err) {
+        console.error(
+          "Adding new  failed:",
+          err?.response?.data || err?.message
+        );
+        return;
+      }
+    };
+    addNewForm();
   };
 
   const updateForm = (formId, formData) => {
@@ -437,7 +570,7 @@ const useAdminData = () => {
     addProgramme,
     updateProgramme,
     deleteProgramme,
-    addSemester,
+    addSemester, // <-- Add this line
     updateSemester,
     deleteSemester,
     addForm,

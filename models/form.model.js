@@ -1,44 +1,33 @@
 import mongoose, { Schema } from "mongoose";
 
 const FormSchema = new Schema({
-  teacherName: {
+  subjectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+    required: true,
+  },
+  subjectName: String,
+  teacher: String,
+  ratings: {
+    type: [Number], // Array of 15 ratings (1-5)
+    validate: [(arr) => arr.length === 15, "There must be 15 ratings."],
+    required: true,
+  },
+  suggestion: {
+    // Q16
     type: String,
-    required: true,
-  },
-  teachingEffectiveness: {
-    type: Number,
-    min: 0,
-    max: 5,
-    required: true,
-  },
-  communicationSkills: {
-    type: Number,
-    min: 0,
-    max: 5,
-    required: true,
-  },
-  subjectKnowledge: {
-    type: Number,
-    min: 0,
-    max: 5,
-    required: true,
-  },
-  punctualityAndAvailability: {
-    type: Number,
-    min: 0,
-    max: 5,
-    required: true,
-  },
-  overallExperience: {
-    type: String,
-    minLength: [20, "Overall experience must be at least 20 characters long."],
     required: false,
   },
-  status: {
+  observation: {
+    // Q17
     type: String,
-    enum: ["pending", "completed"],
-    default: "pending",
+    required: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
+
 const Form = mongoose.models.Form || mongoose.model("Form", FormSchema);
 export default Form;

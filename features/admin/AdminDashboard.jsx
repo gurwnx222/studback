@@ -130,7 +130,7 @@ export default function AdminDashboard() {
   // Save handler - routes to appropriate function based on type and mode
   const handleSave = () => {
     const { type, mode, parentId, data } = modalState;
-
+    console.log("Handling save for:", type, mode, formData, parentId, data);
     switch (type) {
       case "school":
         mode === "add" ? addSchool(formData) : updateSchool(data.id, formData);
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
           ? addProgramme(parentId, formData)
           : updateProgramme(data.id, formData);
         break;
-      case "year":
+      case "semester":
         mode === "add"
           ? addSemester(parentId, formData)
           : updateSemester(data.id, formData);
@@ -167,14 +167,17 @@ export default function AdminDashboard() {
     setOpenDepartments((prev) => ({ ...prev, [id]: !prev[id] }));
   const toggleProgramme = (id) =>
     setOpenProgrammes((prev) => ({ ...prev, [id]: !prev[id] }));
-  const toggleYear = (id) =>
-    setOpenYears((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleSemester = (id) =>
+    setOpenSemesters((prev) => ({ ...prev, [id]: !prev[id] }));
 
   // Generate modal title dynamically
   const getModalTitle = () => {
     const { type, mode } = modalState;
     const action = mode === "add" ? "ADD" : "EDIT";
-    return `${action}_${type?.toUpperCase()}`;
+    // Map 'year' to 'semester' for the modal title
+    let displayType = type;
+    if (type === "year") displayType = "semester";
+    return `${action}_${displayType?.toUpperCase()}`;
   };
 
   const handleLogout = () => {
@@ -317,11 +320,16 @@ export default function AdminDashboard() {
                         key={prog?._id || prog.id}
                         icon={BookOpen}
                         title={`${prog?.name}`}
-                        count={prog?.years?.length}
+                        count={prog?.semesters?.length}
                         isOpen={openProgrammes[prog?._id || prog.id]}
                         onToggle={() => toggleProgramme(prog?._id || prog.id)}
                         onAdd={() =>
-                          openModal("year", "add", null, prog?._id || prog.id)
+                          openModal(
+                            "semester",
+                            "add",
+                            null,
+                            prog?._id || prog.id
+                          )
                         }
                         level={2}
                       >
@@ -348,53 +356,48 @@ export default function AdminDashboard() {
                           </button>
                         </div>
 
-                        {/* Years */}
-                        {prog?.years.map((year) => (
+                        {/* Semesters */}
+                        {prog?.semesters.map((sem) => (
                           <CollapsibleSection
-                            key={year?._id || year.id}
+                            key={sem?._id || sem.id}
                             icon={Users}
-                            title={`${year?.name}`}
-                            count={year?.forms?.length}
-                            isOpen={openYears[year?._id || year.id]}
-                            onToggle={() => toggleYear(year?._id || year.id)}
+                            title={`${sem?.name}`}
+                            count={sem?.forms?.length}
+                            isOpen={openYears[sem?._id || sem.id]}
+                            onToggle={() => toggleSemester(sem?._id || sem.id)}
                             onAdd={() =>
-                              openModal(
-                                "form",
-                                "add",
-                                null,
-                                year?._id || year.id
-                              )
+                              openModal("form", "add", null, sem?._id || sem.id)
                             }
                             level={3}
                           >
-                            {/* Year Actions */}
+                            {/* Semester Actions */}
                             <div className="flex items-center justify-end gap-2 mb-4">
                               <button
                                 onClick={() =>
                                   openModal(
-                                    "year",
+                                    "sem",
                                     "edit",
-                                    year,
+                                    sem,
                                     prog._id || prog.id
                                   )
                                 }
                                 className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                               >
-                                EDIT_YEAR
+                                EDIT_SEMESTER
                               </button>
                               <button
                                 onClick={() =>
-                                  deleteSemester(year._id || year.id)
+                                  deleteSemester(sem._id || sem.id)
                                 }
                                 className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
                               >
-                                DELETE_YEAR
+                                DELETE_SEMESTER
                               </button>
                             </div>
 
                             {/* Teacher Forms */}
-                            {year?.forms.length > 0 ? (
-                              year.forms.map((form) => (
+                            {sem?.forms?.length > 0 ? (
+                              sem.forms.map((form) => (
                                 <TeacherFormCard
                                   key={form._id || form.id}
                                   form={form}
@@ -403,7 +406,7 @@ export default function AdminDashboard() {
                                       "form",
                                       "edit",
                                       form,
-                                      year._id || year.id
+                                      sem._id || sem.id
                                     )
                                   }
                                   onDelete={() =>
