@@ -43,6 +43,7 @@ const useAdminData = () => {
   const [error, setError] = useState(null);
 
   // Fetch all schools with related data on mount
+
   useEffect(() => {
     const fetchSchools = async () => {
       try {
@@ -87,8 +88,6 @@ const useAdminData = () => {
 
     fetchSchools();
   }, []);
-
-  // ...existing code...
 
   const addSchool = async (schoolData) => {
     //writing backend logic to add school
@@ -149,17 +148,19 @@ const useAdminData = () => {
   const addDepartment = (schoolId, deptData) => {
     const addNewDepartment = async () => {
       try {
+        // Pass schoolId to backend so department is linked to the correct school
         const response = await axios.post("/api/routes/department", {
           name: deptData?.name,
           programmes: [], // Initialize with empty programmes array
+          schoolId, // <-- Pass schoolId to backend
         });
         if (response.status === 201 || response.status === 200) {
           console.log("Adding new department");
           console.log("New Department added", response.data);
         }
         const returned = response?.data?.department || {};
-        const created = response?.data?.school?.departments?.programmes
-          ? response?.data?.school?.departments
+        const created = response?.data?.department?.programmes
+          ? response?.data?.department
           : { programmes: [] };
         const serverSchool = response?.data?.school || null;
         const newDepartment = {

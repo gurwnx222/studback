@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { User, LogOut } from "lucide-react";
 import { SubjectCard } from "@/features/components/SubjectCard";
-import { FeedbackForm } from "@/features/components/FeedbackForm";
+import FeedbackForm from "@/features/components/FeedbackForm";
 <SubjectCard />;
 // Feedback Form Component
 <FeedbackForm />;
@@ -15,35 +15,32 @@ export default function MainPage() {
   const router = useRouter();
   // Mock student data
   const studentData = {
-    name: "RAJESH KUMAR",
-    registrationId: "CSE2021-12345",
-    department: "Computer Science & Engineering",
-    year: "3rd Year",
-    semester: "VI",
+    name: "Gurwinder Singh",
+    registrationId: "rimt-25-2544",
+    department: "Computer Science & Engineering (AI/ML)",
+    year: "1st Year",
+    semester: "1st",
   };
 
   // Mock subjects data
   const subjects = [
     {
-      code: "CSE-301",
-      name: "Data Structures & Algorithms",
-      teacher: "Dr. Priya Sharma",
+      name: "Computer Fundatmentals",
+      teacher: "Dr. Jasmine Gill",
       credits: 4,
       schedule: "Mon, Wed, Fri - 9:00 AM",
       feedbackStatus: "pending",
     },
     {
-      code: "CSE-302",
-      name: "Database Management Systems",
-      teacher: "Prof. Amit Verma",
+      name: "AI Mathematica",
+      teacher: "Prof. Md.Alam",
       credits: 3,
       schedule: "Tue, Thu - 11:00 AM",
       feedbackStatus: "pending",
     },
     {
-      code: "CSE-303",
-      name: "Operating Systems",
-      teacher: "Dr. Sandeep Rao",
+      name: "Physics for Engineers",
+      teacher: "Prof. Mohinder Pal",
       credits: 4,
       schedule: "Mon, Wed, Fri - 2:00 PM",
       feedbackStatus: "completed",
@@ -57,20 +54,11 @@ export default function MainPage() {
       feedbackStatus: "pending",
     },
     {
-      code: "CSE-305",
-      name: "Software Engineering",
-      teacher: "Dr. Vikram Singh",
+      name: "Electronics for Engineers",
+      teacher: "Dr. Satish Saini",
       credits: 3,
       schedule: "Wed, Fri - 11:00 AM",
       feedbackStatus: "pending",
-    },
-    {
-      code: "CSE-306",
-      name: "Web Technologies",
-      teacher: "Prof. Anjali Mehta",
-      credits: 3,
-      schedule: "Mon, Thu - 3:00 PM",
-      feedbackStatus: "completed",
     },
   ];
 

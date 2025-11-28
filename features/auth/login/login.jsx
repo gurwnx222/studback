@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 
@@ -145,45 +144,23 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
+  // Remove backend interaction, just simulate success for demo
+  const handleSubmit = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    try {
-      const response = await axios.post(
-        "/api/users/login",
-        {
-          registrationId: formData.registrationId,
-          password: formData.password,
-        },
-        {
-          withCredentials: true, // Important for handling cookies
-        }
-      );
-
-      if (response.status === 200) {
-        setLoginSuccess(true);
-
-        // Show success message briefly before redirect
-        setTimeout(() => {
-          setLoginSuccess(false);
-          router.push("/main-screen");
-          router.refresh(); // Refresh to ensure new auth state is recognized
-        }, 2000);
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Invalid credentials. Please try again.";
-      setErrors((prev) => ({
-        ...prev,
-        submit: errorMessage,
-      }));
-    } finally {
+    setTimeout(() => {
+      setLoginSuccess(true);
       setIsSubmitting(false);
-    }
+
+      // Simulate redirect after success
+      setTimeout(() => {
+        setLoginSuccess(false);
+        router.push("/main-screen");
+        router.refresh();
+      }, 2000);
+    }, 1200);
   };
 
   const handleKeyPress = (e) => {

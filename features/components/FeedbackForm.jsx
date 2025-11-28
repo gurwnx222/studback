@@ -1,42 +1,115 @@
 import React, { useState } from "react";
 import { ChevronRight, Award } from "lucide-react";
-export const FeedbackForm = ({ subject, onBack }) => {
-  const [ratings, setRatings] = useState({
-    teaching: 0,
-    communication: 0,
-    knowledge: 0,
-    punctuality: 0,
-    overall: 0,
+
+export default function FeedbackForm({ subject, onBack }) {
+  const [ratings, setRatings] = useState({});
+  const [textInputs, setTextInputs] = useState({
+    q16: "",
+    q17: "",
   });
-  const [comments, setComments] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const categories = [
-    { key: "teaching", label: "Teaching Effectiveness" },
-    { key: "communication", label: "Communication Skills" },
-    { key: "knowledge", label: "Subject Knowledge" },
-    { key: "punctuality", label: "Punctuality & Availability" },
-    { key: "overall", label: "Overall Experience" },
+  const questions = [
+    {
+      id: 1,
+      text: "Express how well the scheme and curriculum of the course are planned.",
+    },
+    {
+      id: 2,
+      text: "Indicate the extent to which the syllabus was covered in class.",
+    },
+    {
+      id: 3,
+      text: "What is the level of course delivery by the faculty member, particularly their communication skills.",
+    },
+    {
+      id: 4,
+      text: "Comment on the faculty member's guidance and counseling in academic and non-academic matters.",
+    },
+    {
+      id: 5,
+      text: "Rate the use of teaching aids (PPTs, handouts, web resources, ICT tools) by the faculty to facilitate teaching.",
+    },
+    {
+      id: 6,
+      text: "How do you rate the fairness of the assessment and evaluation process (assignments, quizzes, sessional tests/end-term exams, etc.).",
+    },
+    {
+      id: 7,
+      text: "Express the level of opportunities available for internships, field visits, hackathons, creativity and critical-thinking activities, etc.",
+    },
+    {
+      id: 8,
+      text: "What is the level of learning experiences through extra academic activities like expert lectures, seminars, workshops, conferences, value-added courses, MOOC courses, etc.",
+    },
+    {
+      id: 9,
+      text: "How would you rate the faculty member's punctuality in the class.",
+    },
+    {
+      id: 10,
+      text: "Rate the quality and appropriateness of the assignments and quizzes given by the faculty.",
+    },
+    {
+      id: 11,
+      text: "Express how well the timely communication is provided regarding important information such as attendance, examination schedules, and other university activities.",
+    },
+    {
+      id: 12,
+      text: "Indicate how well the course scheme and syllabus support employability or help in securing a suitable job.",
+    },
+    {
+      id: 13,
+      text: "Rate whether the experiments performed in the labs are well-designed and aligned with the theoretical content of the subject.",
+    },
+    {
+      id: 14,
+      text: "Indicate whether proper guidance was provided by the faculty during the experiments.",
+    },
+    {
+      id: 15,
+      text: "State your level of satisfaction with the experiments conducted during the semester.",
+    },
   ];
 
-  const handleRating = (category, value) => {
-    setRatings((prev) => ({ ...prev, [category]: value }));
+  const ratingLabels = {
+    5: "EXCELLENT",
+    4: "VERY_GOOD",
+    3: "GOOD",
+    2: "FAIR",
+    1: "POOR",
+    0: "NOT_RATED",
+  };
+
+  const handleRating = (questionId, value) => {
+    setRatings((prev) => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleTextInput = (field, value) => {
+    setTextInputs((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = () => {
-    const allRated = Object.values(ratings).every((rating) => rating > 0);
+    const allRated = questions.every((q) => ratings[q.id] > 0);
     if (!allRated) {
-      alert("Please rate all categories");
+      alert("Please rate all questions before submitting");
       return;
     }
 
     setIsSubmitting(true);
+
+    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitSuccess(true);
-      console.log("Feedback submitted:", { subject, ratings, comments });
+      console.log("Feedback submitted:", {
+        subject: subject,
+        ratings,
+        textInputs,
+      });
 
+      // Return to dashboard after 2 seconds
       setTimeout(() => {
         onBack();
       }, 2000);
@@ -83,21 +156,28 @@ export const FeedbackForm = ({ subject, onBack }) => {
                 Professor: {subject.teacher}
               </p>
               <p className="text-xs text-zinc-600 mt-1">{subject.code}</p>
+              <p className="text-xs text-zinc-500 mt-1">{subject.schedule}</p>
             </div>
 
-            <div className="space-y-6 mb-8">
-              {categories.map((category) => (
-                <div key={category.key}>
-                  <label className="block text-xs text-zinc-500 tracking-widest mb-3 uppercase">
-                    {category.label}
+            <div className="max-h-[60vh] overflow-y-auto pr-4 space-y-8 mb-8 custom-scrollbar">
+              {questions.map((question, index) => (
+                <div
+                  key={question.id}
+                  className="border-b border-zinc-800 pb-6 last:border-b-0"
+                >
+                  <label className="block text-sm text-zinc-400 mb-4 leading-relaxed">
+                    <span className="text-indigo-500 font-bold mr-2">
+                      {index + 1}.
+                    </span>
+                    {question.text}
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {[1, 2, 3, 4, 5].map((value) => (
                       <button
                         key={value}
-                        onClick={() => handleRating(category.key, value)}
+                        onClick={() => handleRating(question.id, value)}
                         className={`w-12 h-12 border-2 transition-all duration-200 ${
-                          ratings[category.key] >= value
+                          ratings[question.id] >= value
                             ? "border-indigo-500 bg-indigo-500 text-white"
                             : "border-zinc-700 text-zinc-600 hover:border-zinc-600"
                         }`}
@@ -106,34 +186,44 @@ export const FeedbackForm = ({ subject, onBack }) => {
                       </button>
                     ))}
                     <span className="ml-4 text-xs text-zinc-600 tracking-wider">
-                      {ratings[category.key] === 0
-                        ? "NOT_RATED"
-                        : ratings[category.key] === 1
-                        ? "POOR"
-                        : ratings[category.key] === 2
-                        ? "FAIR"
-                        : ratings[category.key] === 3
-                        ? "GOOD"
-                        : ratings[category.key] === 4
-                        ? "VERY_GOOD"
-                        : "EXCELLENT"}
+                      {ratingLabels[ratings[question.id] || 0]}
                     </span>
                   </div>
                 </div>
               ))}
-            </div>
 
-            <div className="mb-8">
-              <label className="block text-xs text-zinc-500 tracking-widest mb-3 uppercase">
-                Additional Comments (Optional)
-              </label>
-              <textarea
-                value={comments}
-                onChange={(e) => setComments(e.target.value)}
-                placeholder="Share your detailed feedback..."
-                rows="4"
-                className="w-full bg-zinc-900 border-2 border-zinc-800 px-4 py-3 text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors resize-none"
-              />
+              {/* Question 16 - Text Input */}
+              <div className="border-b border-zinc-800 pb-6">
+                <label className="block text-sm text-zinc-400 mb-4 leading-relaxed">
+                  <span className="text-indigo-500 font-bold mr-2">16.</span>
+                  Suggest any specific subject or skill that should be added to
+                  the current program syllabus—either in theory or practical
+                  areas.
+                </label>
+                <textarea
+                  value={textInputs.q16}
+                  onChange={(e) => handleTextInput("q16", e.target.value)}
+                  placeholder="Your suggestions..."
+                  rows="3"
+                  className="w-full bg-zinc-900 border-2 border-zinc-800 px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                />
+              </div>
+
+              {/* Question 17 - Text Input */}
+              <div>
+                <label className="block text-sm text-zinc-400 mb-4 leading-relaxed">
+                  <span className="text-indigo-500 font-bold mr-2">17.</span>
+                  Provide any additional observations regarding academic content
+                  or teaching delivery.
+                </label>
+                <textarea
+                  value={textInputs.q17}
+                  onChange={(e) => handleTextInput("q17", e.target.value)}
+                  placeholder="Your observations..."
+                  rows="3"
+                  className="w-full bg-zinc-900 border-2 border-zinc-800 px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                />
+              </div>
             </div>
 
             <button
@@ -156,6 +246,23 @@ export const FeedbackForm = ({ subject, onBack }) => {
           </>
         )}
       </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #18181b;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #3f3f46;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #52525b;
+        }
+      `}</style>
     </div>
   );
-};
+}

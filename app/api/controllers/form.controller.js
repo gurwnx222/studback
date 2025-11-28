@@ -1,114 +1,69 @@
 import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Form from "@/models/form.model";
+import Subject from "@/models/subject.model";
 
+//creating a new form
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const formData = await NextRequest.json();
+    const { subjectId, name } = await NextRequest.json();
 
-    // Validate required fields
-    const requiredFields = [
-      "teacherName",
-      "teachingEffectiveness",
-      "communicationSkills",
-      "subjectKnowledge",
-      "punctualityAndAvailability",
-      "overallExperience",
-    ];
-
-    for (const field of requiredFields) {
-      if (!formData[field]) {
-        return NextResponse.json(
-          { message: `${field} is required` },
-          { status: 400 }
-        );
-      }
+    let existingForm = await Form.findOne({ name });
+    if (!existingForm) {
+      existingForm = new Form({ name });
+      await existingForm.save();
     }
 
-    // Validate ratings are between 1 and 5
-    const ratingFields = requiredFields.filter(
-      (field) => field !== "teacherName"
-    );
-    for (const field of ratingFields) {
-      if (formData[field] < 1 || formData[field] > 5) {
-        return NextResponse.json(
-          { message: `${field} must be between 1 and 5` },
-          { status: 400 }
-        );
+    // Link form to subject
+    if (subjectId) {
+      const subjectDoc = await Subject.findById(subjectId);
+      if (subjectDoc) {
+        const isFormLinked = subjectDoc.forms.includes(existingForm._id);
+        if (!isFormLinked) {
+          subjectDoc.forms.push(existingForm._id);
+          await subjectDoc.save();
+        }
       }
     }
-
-    const newForm = new Form(formData);
-    await newForm.save();
 
     return NextResponse.json(
-      {
-        message: "Form submitted successfully",
-        form: newForm,
-      },
+      { message: "Form updated successfully", form: existingForm },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Form submission error:", error);
-    return NextResponse.json(
-      { message: "Failed to submit form" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
-export async function GET() {
+//fetching all forms
+export async function GET(NextRequest) {
   try {
     await connectToDB();
-    const forms = await Form.find({}).sort({ submittedAt: -1 });
-
+    const forms = await Form.find({});
     return NextResponse.json(
-      {
-        message: "Forms fetched successfully",
-        forms: forms,
-      },
+      { message: "Forms fetched successfully", forms: forms },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Form fetch error:", error);
-    return NextResponse.json(
-      { message: "Failed to fetch forms" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
+//deleting a form by id
 export async function DELETE(NextRequest) {
   try {
     await connectToDB();
-    const { searchParams } = new URL(NextRequest.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json(
-        { message: "Form ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const deletedForm = await Form.findByIdAndDelete(id);
+    const { _id } = await NextRequest.json();
+    const deletedForm = await Form.findByIdAndDelete(_id);
     if (!deletedForm) {
       return NextResponse.json({ message: "Form not found" }, { status: 404 });
     }
-
     return NextResponse.json(
-      {
-        message: "Form deleted successfully",
-        form: deletedForm,
-      },
+      { message: "Form deleted successfully", form: deletedForm },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Form deletion error:", error);
-    return NextResponse.json(
-      { message: "Failed to delete form" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

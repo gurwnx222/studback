@@ -2,18 +2,20 @@ import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Subject from "@/models/subject.model";
 import Form from "@/models/form.model";
-import { populate } from "dotenv";
+import Semester from "@/models/semester.model"; // Add this import
 
 //creating a new subject
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, forms } = await NextRequest.json();
-    const existingSubject = await Subject.findOne({ name });
+    const { semesterId, name, forms = [] } = await NextRequest.json();
+
+    let existingSubject = await Subject.findOne({ name });
     if (!existingSubject) {
-      const Subject = new Subject({ name, forms: [] });
-      await Subject.save();
+      existingSubject = new Subject({ name, forms: [] });
+      await existingSubject.save();
     }
+
     const formIds = [];
     for (const frm of forms) {
       let form = await Form.findOne({ name: frm.name });
@@ -25,22 +27,34 @@ export async function POST(NextRequest) {
       }
       formIds.push(form._id);
     }
+
     existingSubject.forms = [...existingSubject.forms, ...formIds];
     await existingSubject.save();
+
+    // Link subject to semester
+    if (semesterId) {
+      const semesterDoc = await Semester.findById(semesterId);
+      if (semesterDoc) {
+        const isSubjectLinked = semesterDoc.subjects.includes(
+          existingSubject._id
+        );
+        if (!isSubjectLinked) {
+          semesterDoc.subjects.push(existingSubject._id);
+          await semesterDoc.save();
+        }
+      }
+    }
+
     const populatedSubject = await Subject.findById(
       existingSubject._id
     ).populate("forms");
-    const response = NextResponse.json(
-      { message: "Subject updated successfully", forms: populatedSubject },
+
+    return NextResponse.json(
+      { message: "Subject updated successfully", subject: populatedSubject },
       { status: 201 }
     );
-    return response;
   } catch (error) {
-    return NextResponse.json(
-      { message: error.message },
-      { error: error },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 //fetching all subjects

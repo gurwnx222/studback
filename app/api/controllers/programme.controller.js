@@ -2,18 +2,23 @@ import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Programme from "@/models/programme.model";
 import Semester from "@/models/semester.model";
+import Department from "@/models/department.model";
 //creating a new programme
+
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, semester } = await NextRequest.json();
-    const existingProgramme = await Programme.findOne({ name });
+    const { departmentId, name, semesters = [] } = await NextRequest.json();
+
+    let existingProgramme = await Programme.findOne({ name });
     if (!existingProgramme) {
-      const existingProgramme = new Programme({ name, semester: [] });
+      existingProgramme = new Programme({ name, semesters: [] });
       await existingProgramme.save();
     }
+
+    // Link semesters to the programme
     const semesterIds = [];
-    for (const sem of semester) {
+    for (const sem of semesters) {
       let semInstance = await Semester.findOne({ name: sem.name });
       if (!semInstance) {
         semInstance = new Semester({ name: sem.name, subjects: [] });
@@ -21,30 +26,42 @@ export async function POST(NextRequest) {
       }
       semesterIds.push(semInstance._id);
     }
-    existingProgramme.semester = [
+    existingProgramme.semesters = [
       ...existingProgramme.semesters,
       ...semesterIds,
     ];
     await existingProgramme.save();
+
+    // Link programme to department
+    if (departmentId) {
+      const departmentDoc = await Department.findById(departmentId);
+      if (departmentDoc) {
+        const isProgrammeLinked = departmentDoc.programmes.includes(
+          existingProgramme._id
+        );
+        if (!isProgrammeLinked) {
+          departmentDoc.programmes.push(existingProgramme._id);
+          await departmentDoc.save();
+        }
+      }
+    }
+
     const populatedProgramme = await Programme.findById(
       existingProgramme._id
     ).populate("semesters");
-    const response = NextResponse.json(
+
+    return NextResponse.json(
       {
         message: "Programme created successfully",
-        semester: populatedProgramme,
+        programme: populatedProgramme,
       },
       { status: 201 }
     );
-    return response;
   } catch (error) {
-    return NextResponse.json(
-      { message: error.message },
-      { error: error },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
+
 //fetching all programmes
 export async function GET(NextRequest) {
   try {

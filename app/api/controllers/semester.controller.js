@@ -2,11 +2,12 @@ import connectToDB from "@/dbConfig/dbConnection";
 import { NextRequest, NextResponse } from "next/server";
 import Semester from "@/models/semester.model";
 import Subject from "@/models/subject.model";
+import Programme from "@/models/programme.model";
 
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { name, subjects } = await NextRequest.json();
+    const { programmeId, name, subjects = [] } = await NextRequest.json();
 
     let existingSemester = await Semester.findOne({ name });
     if (!existingSemester) {
@@ -30,6 +31,20 @@ export async function POST(NextRequest) {
     // Update existing semester with new subjects
     existingSemester.subjects = [...existingSemester.subjects, ...subjectIds];
     await existingSemester.save();
+
+    // Link semester to programme
+    if (programmeId) {
+      const programmeDoc = await Programme.findById(programmeId);
+      if (programmeDoc) {
+        const isSemesterLinked = programmeDoc.semesters.includes(
+          existingSemester._id
+        );
+        if (!isSemesterLinked) {
+          programmeDoc.semesters.push(existingSemester._id);
+          await programmeDoc.save();
+        }
+      }
+    }
 
     const populatedSemester = await Semester.findById(
       existingSemester._id
