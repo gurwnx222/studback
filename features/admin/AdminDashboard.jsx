@@ -82,9 +82,9 @@ export default function AdminDashboard() {
     addProgramme,
     updateProgramme,
     deleteProgramme,
-    addYear,
-    updateYear,
-    deleteYear,
+    addSemester,
+    updateSemester,
+    deleteSemester,
     addForm,
     updateForm,
     deleteForm,
@@ -147,8 +147,8 @@ export default function AdminDashboard() {
         break;
       case "year":
         mode === "add"
-          ? addYear(parentId, formData)
-          : updateYear(data.id, formData);
+          ? addSemester(parentId, formData)
+          : updateSemester(data.id, formData);
         break;
       case "form":
         mode === "add"
@@ -383,7 +383,9 @@ export default function AdminDashboard() {
                                 EDIT_YEAR
                               </button>
                               <button
-                                onClick={() => deleteYear(year._id || year.id)}
+                                onClick={() =>
+                                  deleteSemester(year._id || year.id)
+                                }
                                 className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
                               >
                                 DELETE_YEAR

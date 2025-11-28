@@ -286,8 +286,8 @@ const useAdminData = () => {
     }
   };
 
-  // Year operations
-  const addYear = (progId, yearData) => {
+  // Semester operations
+  const addSemester = (progId, semesterData) => {
     setSchools(
       schools.map((school) => ({
         ...school,
@@ -297,11 +297,11 @@ const useAdminData = () => {
             if (prog.id === progId) {
               return {
                 ...prog,
-                years: [
-                  ...prog.years,
+                semesters: [
+                  ...(prog.semesters || []),
                   {
-                    id: "y" + Date.now(),
-                    ...yearData,
+                    id: "s" + Date.now(),
+                    ...semesterData,
                     forms: [],
                   },
                 ],
@@ -314,7 +314,7 @@ const useAdminData = () => {
     );
   };
 
-  const updateYear = (yearId, yearData) => {
+  const updateSemester = (semesterId, semesterData) => {
     setSchools(
       schools.map((school) => ({
         ...school,
@@ -322,8 +322,10 @@ const useAdminData = () => {
           ...dept,
           programmes: dept.programmes.map((prog) => ({
             ...prog,
-            years: prog.years.map((year) =>
-              year.id === yearId ? { ...year, ...yearData } : year
+            semesters: (prog.semesters || []).map((semester) =>
+              semester.id === semesterId
+                ? { ...semester, ...semesterData }
+                : semester
             ),
           })),
         })),
@@ -331,8 +333,8 @@ const useAdminData = () => {
     );
   };
 
-  const deleteYear = (yearId) => {
-    if (confirm("Are you sure you want to delete this year?")) {
+  const deleteSemester = (semesterId) => {
+    if (confirm("Are you sure you want to delete this semester?")) {
       setSchools(
         schools.map((school) => ({
           ...school,
@@ -340,7 +342,9 @@ const useAdminData = () => {
             ...dept,
             programmes: dept.programmes.map((prog) => ({
               ...prog,
-              years: prog.years.filter((year) => year.id !== yearId),
+              semesters: (prog.semesters || []).filter(
+                (semester) => semester.id !== semesterId
+              ),
             })),
           })),
         }))
@@ -348,8 +352,8 @@ const useAdminData = () => {
     }
   };
 
-  // Teacher Form operations
-  const addForm = (yearId, formData) => {
+  // Teacher Form operations (now under semesters)
+  const addForm = (semesterId, formData) => {
     setSchools(
       schools.map((school) => ({
         ...school,
@@ -357,12 +361,12 @@ const useAdminData = () => {
           ...dept,
           programmes: dept.programmes.map((prog) => ({
             ...prog,
-            years: prog.years.map((year) => {
-              if (year.id === yearId) {
+            semesters: (prog.semesters || []).map((semester) => {
+              if (semester.id === semesterId) {
                 return {
-                  ...year,
+                  ...semester,
                   forms: [
-                    ...year.forms,
+                    ...(semester.forms || []),
                     {
                       id: "f" + Date.now(),
                       ...formData,
@@ -370,7 +374,7 @@ const useAdminData = () => {
                   ],
                 };
               }
-              return year;
+              return semester;
             }),
           })),
         })),
@@ -386,9 +390,9 @@ const useAdminData = () => {
           ...dept,
           programmes: dept.programmes.map((prog) => ({
             ...prog,
-            years: prog.years.map((year) => ({
-              ...year,
-              forms: year.forms.map((form) =>
+            semesters: (prog.semesters || []).map((semester) => ({
+              ...semester,
+              forms: (semester.forms || []).map((form) =>
                 form.id === formId ? { ...form, ...formData } : form
               ),
             })),
@@ -407,9 +411,11 @@ const useAdminData = () => {
             ...dept,
             programmes: dept.programmes.map((prog) => ({
               ...prog,
-              years: prog.years.map((year) => ({
-                ...year,
-                forms: year.forms.filter((form) => form.id !== formId),
+              semesters: (prog.semesters || []).map((semester) => ({
+                ...semester,
+                forms: (semester.forms || []).filter(
+                  (form) => form.id !== formId
+                ),
               })),
             })),
           })),
@@ -431,9 +437,9 @@ const useAdminData = () => {
     addProgramme,
     updateProgramme,
     deleteProgramme,
-    addYear,
-    updateYear,
-    deleteYear,
+    addSemester,
+    updateSemester,
+    deleteSemester,
     addForm,
     updateForm,
     deleteForm,
