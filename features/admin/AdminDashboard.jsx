@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   const [openSchools, setOpenSchools] = useState({});
   const [openDepartments, setOpenDepartments] = useState({});
   const [openProgrammes, setOpenProgrammes] = useState({});
-  const [openYears, setOpenYears] = useState({});
+  const [openSemesters, setOpenSemesters] = useState({});
 
   // Modal state management
   const [modalState, setModalState] = useState({
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
                             icon={Users}
                             title={`${sem?.name}`}
                             count={sem?.forms?.length}
-                            isOpen={openYears[sem?._id || sem.id]}
+                            isOpen={openSemesters[sem?._id || sem.id]}
                             onToggle={() => toggleSemester(sem?._id || sem.id)}
                             onAdd={() =>
                               openModal("form", "add", null, sem?._id || sem.id)
@@ -396,21 +396,21 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* Teacher Forms */}
-                            {sem?.forms?.length > 0 ? (
-                              sem.forms.map((form) => (
+                            {sem?.subjects?.length > 0 ? (
+                              sem.subjects.map((subject) => (
                                 <TeacherFormCard
-                                  key={form._id || form.id}
-                                  form={form}
+                                  key={subject._id || subject.id}
+                                  form={subject}
                                   onEdit={() =>
                                     openModal(
-                                      "form",
+                                      "subject",
                                       "edit",
-                                      form,
+                                      subject,
                                       sem._id || sem.id
                                     )
                                   }
                                   onDelete={() =>
-                                    deleteForm(form._id || form.id)
+                                    deleteForm(subject._id || subject.id)
                                   }
                                 />
                               ))

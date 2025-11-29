@@ -450,13 +450,15 @@ const useAdminData = () => {
     const addNewForm = async () => {
       try {
         // Pass deptId to backend so programme is linked to the correct department
-        const response = await axios.post("/api/routes/form", {
-          name: formData?.name,
+        const response = await axios.post("/api/routes/subject", {
+          name: formData?.subjectName,
+          teacherName: formData?.teacherName,
+          schedule: formData?.schedule,
           semesterId: semesterId,
         });
         if (response.status === 201 || response.status === 200) {
-          console.log("Adding new form");
-          console.log("New form added", response.data);
+          console.log("Adding new subject");
+          console.log("New subject added", response.data);
         }
         const returned = response?.data?.form || {};
         const created = response?.data?.subject?.forms

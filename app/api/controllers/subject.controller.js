@@ -8,11 +8,17 @@ import Semester from "@/models/semester.model"; // Add this import
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { semesterId, name, forms = [] } = await NextRequest.json();
+    const {
+      semesterId,
+      name,
+      teacherName,
+      schedule,
+      forms = [],
+    } = await NextRequest.json();
 
     let existingSubject = await Subject.findOne({ name });
     if (!existingSubject) {
-      existingSubject = new Subject({ name, forms: [] });
+      existingSubject = new Subject({ name, teacherName, schedule, forms: [] });
       await existingSubject.save();
     }
 

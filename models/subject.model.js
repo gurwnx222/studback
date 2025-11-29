@@ -5,6 +5,11 @@ const SubjectSchema = new Schema({
     type: String,
     required: true,
   },
+  teacherName: {
+    type: String,
+    required: true,
+  },
+  schedule: { type: String, required: true },
   forms: [
     {
       type: Schema.Types.ObjectId,
