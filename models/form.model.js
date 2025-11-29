@@ -23,6 +23,11 @@ const FormSchema = new Schema({
     type: String,
     required: false,
   },
+  status: {
+    type: String,
+    enum: ["pending", "completed"],
+    default: "pending",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

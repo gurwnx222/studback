@@ -5,7 +5,7 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  registerationId: {
+  registrationId: {
     type: String,
     required: true,
     unique: true,
@@ -18,11 +18,11 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  year: {
-    type: Number,
+  semester: {
+    type: String,
     required: true,
   },
-  programmes: {
+  programme: {
     type: String,
     required: true,
   },
@@ -45,5 +45,6 @@ const AdminSchema = new Schema({
     required: true,
   },
 });
-const Admin = mongoose.model.Admin || mongoose.model("Admin", AdminSchema);
+const Admin = mongoose.models.Admin || mongoose.model("Admin", AdminSchema);
+console.log("Admin model defined", Admin);
 export { Admin };

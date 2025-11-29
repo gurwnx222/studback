@@ -83,9 +83,9 @@ const FormSelect = ({
         <option value="" className="bg-zinc-900">
           {placeholder}
         </option>
-        {options.map((option) => (
+        {options.map((option, index) => (
           <option
-            key={option.value}
+            key={`${name}-${option.value}-${index}`}
             value={option.value}
             className="bg-zinc-900"
           >
@@ -207,7 +207,7 @@ export default function SignUpPage() {
     registrationId: "",
     school: "",
     department: "",
-    year: "",
+    semester: "",
     programme: "",
     password: "",
     confirmPassword: "",
@@ -223,7 +223,7 @@ export default function SignUpPage() {
 
   // Form options
   const schools = [
-    { value: "SOE", label: "School of Engineering" },
+    { value: "School of Computing", label: "School of Computing" },
     {
       /*  { value: "SOM", label: "School of Management" },
     { value: "SOS", label: "School of Sciences" },
@@ -245,15 +245,21 @@ export default function SignUpPage() {
     },
   ];
 
-  const years = [
-    { value: "1", label: "First Year" },
-    { value: "2", label: "Second Year" },
-    { value: "3", label: "Third Year" },
-    { value: "4", label: "Fourth Year" },
+  const semesters = [
+    { value: "1st", label: "First Semester" },
+    {
+      /*  { value: "2", label: "Second Semester" },
+    { value: "3", label: "Third Semester" },
+    { value: "4", label: "Fourth Semester" },
+    { value: "5", label: "Fifth Semester" },
+    { value: "6", label: "Sixth Semester" },
+    { value: "7", label: "Seventh Semester" },
+    { value: "8", label: "Eighth Semester" }, */
+    },
   ];
 
   const programmes = [
-    { value: "BTECH", label: "B.Tech" },
+    { value: "B.TECH (AI/ML)", label: "B.Tech (AI/ML)" },
     {
       /*  { value: "MTECH", label: "M.Tech" },
     { value: "BBA", label: "BBA" },
@@ -290,8 +296,8 @@ export default function SignUpPage() {
       newErrors.department = "Please select a department";
     }
 
-    if (!formData.year) {
-      newErrors.year = "Please select your year";
+    if (!formData.semester) {
+      newErrors.semester = "Please select your semester";
     }
 
     if (!formData.programme) {
@@ -318,7 +324,7 @@ export default function SignUpPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-
+    console.log("Submitting form data:", formData);
     try {
       const response = await axios.post(
         "/api/users/signup",
@@ -327,7 +333,7 @@ export default function SignUpPage() {
           registrationId: formData.registrationId,
           school: formData.school,
           department: formData.department,
-          year: formData.year,
+          semester: formData.semester,
           programme: formData.programme,
           password: formData.password,
         },
@@ -476,13 +482,13 @@ export default function SignUpPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <FormSelect
-                  label="Year"
-                  name="year"
-                  value={formData.year}
+                  label="Semester"
+                  name="semester"
+                  value={formData.semester}
                   onChange={handleChange}
-                  options={years}
+                  options={semesters}
                   error={errors.year}
-                  placeholder="Select year"
+                  placeholder="Select semester"
                   required
                 />
 

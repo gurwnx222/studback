@@ -8,15 +8,15 @@ export async function POST(NextRequest) {
     await connectToDB();
     const {
       name,
-      registerationId,
+      registrationId,
       school,
       department,
-      year,
-      programmes,
+      semester,
+      programme,
       password,
     } = await NextRequest.json();
 
-    const existingUser = await User.findOne({ registerationId });
+    const existingUser = await User.findOne({ registrationId });
     if (existingUser) {
       return NextResponse.json(
         { message: "User with this registration ID already exists" },
@@ -28,11 +28,11 @@ export async function POST(NextRequest) {
 
     const newUser = new User({
       name,
-      registerationId,
+      registrationId,
       school,
       department,
-      year,
-      programmes,
+      semester,
+      programme,
       password: hashedPassword,
     });
     await newUser.save();

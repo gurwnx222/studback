@@ -14,6 +14,7 @@ export async function POST(NextRequest) {
       ratings,
       suggestion,
       observation,
+      status = "completed",
     } = await NextRequest.json();
 
     if (!subjectId || !Array.isArray(ratings) || ratings.length !== 15) {
@@ -27,6 +28,7 @@ export async function POST(NextRequest) {
       ratings,
       suggestion,
       observation,
+      status,
     });
     await form.save();
 

@@ -1,23 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectToDB from "@/dbConfig/dbConnection";
 import jwt from "jsonwebtoken";
 
-export async function POST(NextRequest) {
+export default function getTokenData(request) {
   try {
-    await connectToDB();
-    const tokenData = jwt.verify(
-      NextRequest.cookies.get("token")?.value || "",
-      process.env.JWT_SECRET
-    );
-    return NextResponse.json(
-      { message: "Token is valid", data: tokenData.id },
-      { status: 200 }
-    );
+    const token = request.cookies.get("token")?.value || "";
+
+    if (!token) {
+      throw new Error("No token found");
+    }
+
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    return tokenData.id;
   } catch (error) {
-    return NextResponse.json(
-      { message: error.message },
-      { error: error },
-      { status: 500 }
-    );
+    throw new Error("Invalid token");
   }
 }

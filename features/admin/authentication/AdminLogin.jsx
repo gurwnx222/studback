@@ -14,6 +14,7 @@ import { Eye, EyeOff, AlertCircle, CheckCircle, Shield } from "lucide-react";
  * - Loading states
  * - Success animation
  * - Security indicator
+ * - Invalid credentials error display
  * - Matches studback design aesthetic
  *
  * Security Note: In production, implement proper backend authentication,
@@ -144,8 +145,13 @@ export default function AdminLoginPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear errors when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    // Clear general error when user types
+    if (errors.general) {
+      setErrors((prev) => ({ ...prev, general: "" }));
     }
   };
 
@@ -175,9 +181,22 @@ export default function AdminLoginPage() {
 
     // Simulate authentication API call
     setTimeout(() => {
+      // Check credentials
+      if (
+        formData.username !== "super.admin.studback@R.P.Singh" ||
+        formData.password !== "Studback@Admin.R.P.Singh"
+      ) {
+        setIsSubmitting(false);
+        setErrors({
+          general:
+            "Invalid admin credentials. Please check your username and password.",
+        });
+        return;
+      }
+
+      // Success
       setIsSubmitting(false);
       setLoginSuccess(true);
-      console.log("Admin login:", formData);
 
       setTimeout(() => {
         // In production, redirect to admin dashboard
@@ -257,6 +276,23 @@ export default function AdminLoginPage() {
             </div>
           </div>
         </div>
+
+        {/* General Error Alert */}
+        {errors.general && (
+          <div className="mb-6 border-2 border-red-500 bg-red-950/30 p-4 animate-shake">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+              <div>
+                <div className="text-red-500 font-bold text-sm tracking-wider mb-1">
+                  ACCESS_DENIED
+                </div>
+                <div className="text-red-400 text-xs leading-relaxed">
+                  {errors.general}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Form Container */}
         <div className="border-4 border-zinc-800 bg-zinc-900 p-8 relative">

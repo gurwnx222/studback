@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { User, LogOut } from "lucide-react";
@@ -12,16 +12,48 @@ import FeedbackForm from "@/features/components/FeedbackForm";
 export default function MainPage() {
   const [time, setTime] = useState(new Date());
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const [studentData, setStudentData] = useState({});
   const router = useRouter();
-  // Mock student data
-  const studentData = {
-    name: "Gurwinder Singh",
-    registrationId: "rimt-25-2544",
-    department: "Computer Science & Engineering (AI/ML)",
-    year: "1st Year",
-    semester: "1st",
-  };
-
+  // fetching student data
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const response = await axios.get("/api/users/profile");
+        if (response.status === 200) {
+          const data = response?.data?.data;
+          setStudentData({
+            name: data?.name,
+            registrationId: data?.registrationId,
+            department: data?.department,
+            semester: data?.semester,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error.response);
+      }
+    };
+    fetchStudentData();
+  }, []);
+  // fetching student subjects
+  useEffect(() => {
+    const fetchStudentSubjects = async () => {
+      try {
+        const response = await axios.get("/api/users/profile");
+        if (response.status === 200) {
+          const data = response?.data?.data;
+          setStudentData({
+            name: data?.name,
+            registrationId: data?.registrationId,
+            department: data?.department,
+            semester: data?.semester,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error.response);
+      }
+    };
+    fetchStudentSubjects();
+  }, []);
   // Mock subjects data
   const subjects = [
     {
@@ -155,8 +187,6 @@ export default function MainPage() {
                     </span>
                     <span className="text-zinc-700">|</span>
                     <span>{studentData.department}</span>
-                    <span className="text-zinc-700">|</span>
-                    <span>{studentData.year}</span>
                     <span className="text-zinc-700">|</span>
                     <span>Semester {studentData.semester}</span>
                   </div>
