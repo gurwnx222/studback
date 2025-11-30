@@ -11,7 +11,7 @@ import Department from "@/models/department.model";
 export async function POST(request) {
   try {
     await connectToDB();
-    const { school } = await request.json();
+    const { school, department, programme, semester } = await request.json();
 
     // Validate required parameters
     if (!school) {
@@ -28,17 +28,51 @@ export async function POST(request) {
     const schoolData = await School.findOne({ name: school }).populate(
       "departments"
     );
+
     if (!schoolData) {
       return NextResponse.json(
         { message: "School not found" },
         { status: 404 }
       );
     }
+    // Step 2: Extract particular department ID from the populated departments
+    const exactDepartment = schoolData.departments.find(
+      (dep) => dep.name === department
+    );
+    if (!exactDepartment) return "Department not found";
+
+    // Step 3: Find programmes within the exact department
+    const departmentData = await Department.findById(
+      exactDepartment._id
+    ).populate("programmes");
+
+    if (!departmentData) return "Department data not found";
+
+    const exactProgramme = departmentData.programmes.find(
+      (prog) => prog.name === programme
+    );
+    if (!exactProgramme) return "Programme not found";
+    // Step 4: Find semesters within the exact programme
+    const programmeData = await Programme.findById(exactProgramme._id).populate(
+      "semesters"
+    );
+    if (!programmeData) return "Programme data not found";
+    const exactSemester = programmeData.semesters.find(
+      (sem) => sem.name === semester
+    );
+    if (!exactSemester) return "Semester not found";
+    // Step 5: Finally, find subjects within the exact semester
+    const semesterData = await Semester.findById(exactSemester._id).populate(
+      "subjects"
+    );
+    if (!semesterData) return "Semester data not found";
+    const subjects = [];
+    subjects.push(semesterData.subjects);
     return NextResponse.json(
       {
         message: "School fetched successfully",
-        subjects: schoolData,
-        count: schoolData.length,
+        subjects: subjects.flat(),
+        count: subjects.length,
       },
       { status: 200 }
     );

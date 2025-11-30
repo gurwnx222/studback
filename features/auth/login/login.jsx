@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
-
+import axios from "axios";
 // Reusable Input Component
 const FormInput = ({
   label,
@@ -144,23 +144,41 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Remove backend interaction, just simulate success for demo
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      const response = await axios.post("/api/auth/login", {
+        registerationId: formData.registrationId,
+        password: formData.password,
+      });
+
+      // Login successful
       setLoginSuccess(true);
       setIsSubmitting(false);
 
-      // Simulate redirect after success
+      // Redirect after success
       setTimeout(() => {
         setLoginSuccess(false);
         router.push("/main-screen");
         router.refresh();
       }, 2000);
-    }, 1200);
+    } catch (error) {
+      console.error("Login error:", error);
+
+      // Handle error responses
+      const errorMessage =
+        error.response?.data?.message ||
+        "An error occurred. Please check your connection and try again.";
+
+      setErrors((prev) => ({
+        ...prev,
+        submit: errorMessage,
+      }));
+      setIsSubmitting(false);
+    }
   };
 
   const handleKeyPress = (e) => {

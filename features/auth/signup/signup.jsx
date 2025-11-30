@@ -233,7 +233,10 @@ export default function SignUpPage() {
     },
   ];
   const departments = [
-    { value: "CSE", label: "Computer Science & Engineering" },
+    {
+      value: "Computer Science & Engineering",
+      label: "Computer Science & Engineering",
+    },
     {
       /* { value: "ECE", label: "Electronics & Communication" },
     { value: "ME", label: "Mechanical Engineering" },
