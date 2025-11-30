@@ -150,7 +150,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post("/api/auth/login", {
+      const response = await axios.post("/api/users/login", {
         registerationId: formData.registrationId,
         password: formData.password,
       });

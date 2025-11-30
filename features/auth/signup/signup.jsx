@@ -327,7 +327,7 @@ export default function SignUpPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    console.log("Submitting form data:", formData);
+
     try {
       const response = await axios.post(
         "/api/users/signup",
