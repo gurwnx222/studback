@@ -7,9 +7,9 @@ import jwt from "jsonwebtoken";
 export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { registerationId, password } = await NextRequest.json();
+    const { registrationId, password } = await NextRequest.json();
 
-    const existingUser = await User.findOne({ registerationId });
+    const existingUser = await User.findOne({ registrationId });
     if (!existingUser) {
       return NextResponse.json(
         { message: "User does not exists" },

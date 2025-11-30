@@ -151,7 +151,7 @@ export default function LoginPage() {
 
     try {
       const response = await axios.post("/api/users/login", {
-        registerationId: formData.registrationId,
+        registrationId: formData.registrationId,
         password: formData.password,
       });
 
