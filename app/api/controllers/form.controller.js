@@ -31,8 +31,6 @@ export async function POST(NextRequest) {
       status,
     });
     await form.save();
-
-    // Optionally link form to subject
     if (subjectId) {
       const subjectDoc = await Subject.findById(subjectId);
       if (subjectDoc) {

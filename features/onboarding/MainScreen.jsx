@@ -13,6 +13,7 @@ export default function MainPage() {
   const [time, setTime] = useState(new Date());
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [studentData, setStudentData] = useState({});
+  const [studSubjects, setStudSubjects] = useState([]);
   const router = useRouter();
 
   // fetching student data
@@ -59,8 +60,8 @@ export default function MainPage() {
           school: studentData.school,
         });
         if (response.status === 200) {
-          const data = response?.data; // Changed from data?.data
-          console.log("Fetched Subjects:", data);
+          const data = response?.data?.subjects; // Changed from data?.data
+          setStudSubjects(data);
         }
       } catch (error) {
         console.error("Error fetching student subjects:", error.response);
@@ -73,45 +74,6 @@ export default function MainPage() {
     studentData.programme,
     studentData.school,
   ]);
-  // Mock subjects data
-  const subjects = [
-    {
-      name: "Computer Fundatmentals",
-      teacher: "Dr. Jasmine Gill",
-      credits: 4,
-      schedule: "Mon, Wed, Fri - 9:00 AM",
-      feedbackStatus: "pending",
-    },
-    {
-      name: "AI Mathematica",
-      teacher: "Prof. Md.Alam",
-      credits: 3,
-      schedule: "Tue, Thu - 11:00 AM",
-      feedbackStatus: "pending",
-    },
-    {
-      name: "Physics for Engineers",
-      teacher: "Prof. Mohinder Pal",
-      credits: 4,
-      schedule: "Mon, Wed, Fri - 2:00 PM",
-      feedbackStatus: "completed",
-    },
-    {
-      code: "CSE-304",
-      name: "Computer Networks",
-      teacher: "Prof. Neha Gupta",
-      credits: 3,
-      schedule: "Tue, Thu - 9:00 AM",
-      feedbackStatus: "pending",
-    },
-    {
-      name: "Electronics for Engineers",
-      teacher: "Dr. Satish Saini",
-      credits: 3,
-      schedule: "Wed, Fri - 11:00 AM",
-      feedbackStatus: "pending",
-    },
-  ];
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -134,10 +96,10 @@ export default function MainPage() {
     }
   };
 
-  const pendingFeedbacks = subjects.filter(
+  const pendingFeedbacks = studSubjects.filter(
     (s) => s.feedbackStatus === "pending"
   ).length;
-  const completedFeedbacks = subjects.filter(
+  const completedFeedbacks = studSubjects.filter(
     (s) => s.feedbackStatus === "completed"
   ).length;
 
@@ -224,7 +186,7 @@ export default function MainPage() {
               <div className="grid grid-cols-3 gap-4 mt-8">
                 <div className="border border-zinc-800 p-4 bg-zinc-950/50">
                   <div className="text-2xl font-black text-white mb-1">
-                    {subjects.length}
+                    {studSubjects.length}
                   </div>
                   <div className="text-xs text-zinc-600 tracking-widest">
                     TOTAL_SUBJECTS
@@ -264,9 +226,9 @@ export default function MainPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {subjects.map((subject) => (
+                {studSubjects.map((subject) => (
                   <SubjectCard
-                    key={subject.code}
+                    key={subject._id}
                     subject={subject}
                     onClick={() => setSelectedSubject(subject)}
                   />

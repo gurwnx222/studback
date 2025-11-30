@@ -8,11 +8,18 @@ import Programme from "@/models/programme.model";
 import Department from "@/models/department.model";
 
 //fetching subjects related to a student
-export async function POST(request) {
+export async function POST(NextRequest) {
   try {
     await connectToDB();
-    const { school, department, programme, semester } = await request.json();
+    const { school, department, programme, semester } =
+      await NextRequest.json();
 
+    console.log("Received Data: ", {
+      school,
+      department,
+      programme,
+      semester,
+    });
     // Validate required parameters
     if (!school) {
       return NextResponse.json(
@@ -28,6 +35,7 @@ export async function POST(request) {
     const schoolData = await School.findOne({ name: school }).populate(
       "departments"
     );
+    console.log("School Data: ", schoolData);
 
     if (!schoolData) {
       return NextResponse.json(
@@ -39,33 +47,33 @@ export async function POST(request) {
     const exactDepartment = schoolData.departments.find(
       (dep) => dep.name === department
     );
-    if (!exactDepartment) return "Department not found";
+    if (!exactDepartment) console.log("Department not found");
 
     // Step 3: Find programmes within the exact department
     const departmentData = await Department.findById(
       exactDepartment._id
     ).populate("programmes");
 
-    if (!departmentData) return "Department data not found";
+    if (!departmentData) console.log("Department data not found");
 
     const exactProgramme = departmentData.programmes.find(
       (prog) => prog.name === programme
     );
-    if (!exactProgramme) return "Programme not found";
+    if (!exactProgramme) console.log("Programme not found");
     // Step 4: Find semesters within the exact programme
     const programmeData = await Programme.findById(exactProgramme._id).populate(
       "semesters"
     );
-    if (!programmeData) return "Programme data not found";
+    if (!programmeData) console.log("Programme data not found");
     const exactSemester = programmeData.semesters.find(
       (sem) => sem.name === semester
     );
-    if (!exactSemester) return "Semester not found";
+    if (!exactSemester) console.log("Semester not found");
     // Step 5: Finally, find subjects within the exact semester
     const semesterData = await Semester.findById(exactSemester._id).populate(
       "subjects"
     );
-    if (!semesterData) return "Semester data not found";
+    if (!semesterData) console.log("Semester data not found");
     const subjects = [];
     subjects.push(semesterData.subjects);
     return NextResponse.json(

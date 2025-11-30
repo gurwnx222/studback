@@ -153,7 +153,7 @@ export default function FeedbackForm({ subject, onBack }) {
                 {subject.name}
               </h2>
               <p className="text-sm text-zinc-500 mt-1">
-                Professor: {subject.teacher}
+                Professor: {subject.teacherName}
               </p>
               <p className="text-xs text-zinc-600 mt-1">{subject.code}</p>
               <p className="text-xs text-zinc-500 mt-1">{subject.schedule}</p>

@@ -47,7 +47,7 @@ export const SubjectCard = ({ subject, onClick }) => {
 
       <div className="flex items-center gap-2 text-xs text-zinc-500 mb-3">
         <User className="w-3 h-3" />
-        <span className="tracking-wider">{subject.teacher}</span>
+        <span className="tracking-wider">{subject.teacherName}</span>
       </div>
 
       <div className="flex items-center gap-4 text-xs">
