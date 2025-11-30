@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDB from "@/dbConfig/dbConnection";
 import User from "@/models/user.model";
-import bcrypt from "bcrypt";
+//import bcrypt from "bcrypt";
 
 export async function POST(NextRequest) {
   try {
@@ -23,8 +23,8 @@ export async function POST(NextRequest) {
         { status: 400 }
       );
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("hashed passwd", hashedPassword);
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    //console.log("hashed passwd", hashedPassword);
 
     const newUser = new User({
       name,
@@ -33,7 +33,7 @@ export async function POST(NextRequest) {
       department,
       semester,
       programme,
-      password: hashedPassword,
+      password,
     });
     await newUser.save();
     return NextResponse.json(

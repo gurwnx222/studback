@@ -14,6 +14,7 @@ export default function MainPage() {
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [studentData, setStudentData] = useState({});
   const router = useRouter();
+
   // fetching student data
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -26,6 +27,8 @@ export default function MainPage() {
             registrationId: data?.registrationId,
             department: data?.department,
             semester: data?.semester,
+            programme: data?.programme,
+            school: data?.school,
           });
         }
       } catch (error) {
@@ -34,26 +37,42 @@ export default function MainPage() {
     };
     fetchStudentData();
   }, []);
+
   // fetching student subjects
   useEffect(() => {
+    // Only run if all required fields are available
+    if (
+      !studentData.semester ||
+      !studentData.department ||
+      !studentData.programme ||
+      !studentData.school
+    ) {
+      return;
+    }
+
     const fetchStudentSubjects = async () => {
       try {
-        const response = await axios.get("/api/users/profile");
+        const response = await axios.post("/api/routes/student-subjects", {
+          semester: studentData.semester,
+          department: studentData.department,
+          programme: studentData.programme,
+          school: studentData.school,
+        });
         if (response.status === 200) {
-          const data = response?.data?.data;
-          setStudentData({
-            name: data?.name,
-            registrationId: data?.registrationId,
-            department: data?.department,
-            semester: data?.semester,
-          });
+          const data = response?.data; // Changed from data?.data
+          console.log("Fetched Subjects:", data);
         }
       } catch (error) {
-        console.error("Error fetching student data:", error.response);
+        console.error("Error fetching student subjects:", error.response);
       }
     };
     fetchStudentSubjects();
-  }, []);
+  }, [
+    studentData.semester,
+    studentData.department,
+    studentData.programme,
+    studentData.school,
+  ]);
   // Mock subjects data
   const subjects = [
     {

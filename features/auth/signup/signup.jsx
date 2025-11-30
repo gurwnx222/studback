@@ -347,7 +347,7 @@ export default function SignUpPage() {
         // Show success message for 2 seconds then redirect
         setTimeout(() => {
           setSubmitSuccess(false);
-          router.push("/main-screen"); // Redirect to main screen
+          router.push("/login"); // Redirect to login
         }, 2000);
       }
     } catch (error) {

@@ -8,11 +8,10 @@ export async function GET(NextRequest) {
     await connectToDB();
 
     // Get user ID from token
-    //const userId = getTokenData(request);
-    const userId = "692ae96e8392f255fa54f335";
+    const userId = getTokenData(NextRequest);
+    console.log("User ID from token:", userId);
     // Fetch user data
     const user = await User.findById(userId).select("-password");
-
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
