@@ -227,7 +227,7 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-3">
               <div className="w-1 h-8 bg-indigo-500"></div>
               <h2 className="text-2xl font-black text-white tracking-tight">
-                ORGANIZATION_HIERARCHY
+                SCHOOL_MANAGEMENT
               </h2>
             </div>
             <button
