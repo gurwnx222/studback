@@ -223,7 +223,7 @@ export default function SignUpPage() {
 
   // Form options
   const schools = [
-    { value: "School of Computing", label: "School of Computing" },
+    { value: "School of Engineering", label: "School of Engineering" },
     {
       /*  { value: "SOM", label: "School of Management" },
     { value: "SOS", label: "School of Sciences" },

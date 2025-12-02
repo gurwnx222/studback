@@ -17,6 +17,7 @@ import FormInput from "./components/FormInput";
 import CollapsibleSection from "./components/CollapsibleSection";
 import TeacherFormCard from "./components/TeacherFormCard";
 import useAdminData from "./hooks/useAdminData";
+
 /**
  * AdminDashboard - Main Component
  *
@@ -237,6 +238,20 @@ export default function AdminDashboard() {
               <Plus className="w-4 h-4" />
               [ADD_SCHOOL]
             </button>
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-8 bg-indigo-500"></div>
+              <h2 className="text-2xl font-black text-white tracking-tight">
+                FEEDBACK_REPORTS
+              </h2>
+            </div>
+            <a
+              href="https://www.youtube.com/" //redirect to reports page in excel
+              target="__blank"
+              className="flex items-center gap-2 px-4 py-3 bg-indigo-600 text-white font-bold tracking-widest hover:bg-indigo-500 transition-colors text-xs"
+            >
+              <Plus className="w-4 h-4" />
+              [VIEW_REPORTS]
+            </a>
           </div>
 
           {/* Schools Hierarchy */}
@@ -262,12 +277,12 @@ export default function AdminDashboard() {
               >
                 {/* School Actions */}
                 <div className="flex items-center justify-end gap-2 mb-4">
-                  <button
+                  {/* <button
                     onClick={() => openModal("school", "edit", school)}
                     className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                   >
                     EDIT_SCHOOL
-                  </button>
+                  </button>*/}
                   <button
                     onClick={() => deleteSchool(school.id)}
                     className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
@@ -293,7 +308,7 @@ export default function AdminDashboard() {
                   >
                     {/* Department Actions */}
                     <div className="flex items-center justify-end gap-2 mb-4">
-                      <button
+                      {/* <button
                         onClick={() =>
                           openModal(
                             "department",
@@ -305,7 +320,7 @@ export default function AdminDashboard() {
                         className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                       >
                         EDIT_DEPT
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => deleteDepartment(dept._id || dept.id)}
                         className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
@@ -335,7 +350,7 @@ export default function AdminDashboard() {
                       >
                         {/* Programme Actions */}
                         <div className="flex items-center justify-end gap-2 mb-4">
-                          <button
+                          {/* <button
                             onClick={() =>
                               openModal(
                                 "programme",
@@ -347,7 +362,8 @@ export default function AdminDashboard() {
                             className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                           >
                             EDIT_PROG
-                          </button>
+                          </button>*/}
+
                           <button
                             onClick={() => deleteProgramme(prog._id || prog.id)}
                             className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400 transition-colors"
@@ -372,7 +388,7 @@ export default function AdminDashboard() {
                           >
                             {/* Semester Actions */}
                             <div className="flex items-center justify-end gap-2 mb-4">
-                              <button
+                              {/*  <button
                                 onClick={() =>
                                   openModal(
                                     "sem",
@@ -384,7 +400,8 @@ export default function AdminDashboard() {
                                 className="text-xs px-3 py-1 border border-zinc-700 text-zinc-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
                               >
                                 EDIT_SEMESTER
-                              </button>
+                              </button>*/}
+
                               <button
                                 onClick={() =>
                                   deleteSemester(sem._id || sem.id)
@@ -401,14 +418,6 @@ export default function AdminDashboard() {
                                 <TeacherFormCard
                                   key={subject._id || subject.id}
                                   form={subject}
-                                  onEdit={() =>
-                                    openModal(
-                                      "subject",
-                                      "edit",
-                                      subject,
-                                      sem._id || sem.id
-                                    )
-                                  }
                                   onDelete={() =>
                                     deleteForm(subject._id || subject.id)
                                   }
