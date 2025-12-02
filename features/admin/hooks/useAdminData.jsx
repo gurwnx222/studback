@@ -537,25 +537,42 @@ const useAdminData = () => {
     );
   };
 
-  const deleteForm = (formId) => {
-    if (confirm("Are you sure you want to delete this teacher form?")) {
-      setSchools(
-        schools.map((school) => ({
-          ...school,
-          departments: school.departments.map((dept) => ({
-            ...dept,
-            programmes: dept.programmes.map((prog) => ({
-              ...prog,
-              semesters: (prog.semesters || []).map((semester) => ({
-                ...semester,
-                forms: (semester.forms || []).filter(
-                  (form) => form.id !== formId
-                ),
+  const deleteForm = async (formId) => {
+    if (confirm("Are you sure you want to delete this form?")) {
+      try {
+        // Call backend to delete the form
+        const response = await axios.delete(`/api/routes/subject/${formId}`);
+
+        if (response.status === 200 || response.status === 204) {
+          console.log("Form deleted successfully");
+
+          // Update local state to remove the deleted form
+          setSchools((prevSchools) =>
+            prevSchools.map((school) => ({
+              ...school,
+              departments: school.departments.map((dept) => ({
+                ...dept,
+                programmes: dept.programmes.map((prog) => ({
+                  ...prog,
+                  semesters: (prog.semesters || []).map((semester) => ({
+                    ...semester,
+                    forms: (semester.forms || []).filter(
+                      (form) => form.id !== formId
+                    ),
+                  })),
+                })),
               })),
-            })),
-          })),
-        }))
-      );
+            }))
+          );
+        }
+      } catch (err) {
+        console.error(
+          "Deleting form failed:",
+          err?.response?.data || err?.message
+        );
+        // Optionally show error to user
+        alert("Failed to delete form. Please try again.");
+      }
     }
   };
 

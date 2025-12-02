@@ -43,13 +43,13 @@ const TeacherFormCard = ({ form, onEdit, onDelete }) => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <button
+          {/* <button
             onClick={onEdit}
             className="p-2 text-zinc-500 hover:text-indigo-400 transition-colors"
             aria-label="Edit form"
           >
             <Edit2 className="w-4 h-4" />
-          </button>
+          </button> */}
           <button
             onClick={onDelete}
             className="p-2 text-zinc-500 hover:text-red-400 transition-colors"
