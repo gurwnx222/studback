@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { ChevronRight, Award } from "lucide-react";
+import axios from "axios";
 
-export default function FeedbackForm({ subject, onBack }) {
-  const [ratings, setRatings] = useState({});
-  const [textInputs, setTextInputs] = useState({
-    q16: "",
-    q17: "",
-  });
+export default function FeedbackForm({ subject, onBack, onSubmitSuccess }) {
+  const [ratings, setRatings] = useState(Array(15).fill(0));
+  const [suggestion, setSuggestion] = useState("");
+  const [observation, setObservation] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -82,38 +81,58 @@ export default function FeedbackForm({ subject, onBack }) {
     0: "NOT_RATED",
   };
 
-  const handleRating = (questionId, value) => {
-    setRatings((prev) => ({ ...prev, [questionId]: value }));
+  const handleRating = (questionIndex, value) => {
+    setRatings((prev) => {
+      const newRatings = [...prev];
+      newRatings[questionIndex] = value;
+      return newRatings;
+    });
   };
 
-  const handleTextInput = (field, value) => {
-    setTextInputs((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSubmit = () => {
-    const allRated = questions.every((q) => ratings[q.id] > 0);
-    if (!allRated) {
-      alert("Please rate all questions before submitting");
+    // Validation: Check if all ratings are provided
+    const hasUnratedQuestions = ratings.some((rating) => rating === 0);
+    if (hasUnratedQuestions) {
+      alert("Please rate all questions before submitting.");
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      console.log("Feedback submitted:", {
-        subject: subject,
-        ratings,
-        textInputs,
+    try {
+      const response = await axios.post("/api/routes/form", {
+        subjectId: subject._id,
+        subjectName: subject.name,
+        teacher: subject.teacherName,
+        ratings: ratings, // Array of exactly 15 ratings
+        suggestion: suggestion,
+        observation: observation,
+        status: "completed",
       });
 
-      // Return to dashboard after 2 seconds
-      setTimeout(() => {
-        onBack();
-      }, 2000);
-    }, 2000);
+      if (response.status === 201) {
+        console.log("Feedback submitted:", response.data);
+        setSubmitSuccess(true);
+
+        // Show success message for 2 seconds, then go back
+        setTimeout(() => {
+          onSubmitSuccess(response.data.form);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error(
+        "Error submitting feedback:",
+        error.response?.data || error.message
+      );
+      alert(
+        error.response?.data?.message ||
+          "Failed to submit feedback. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -175,9 +194,10 @@ export default function FeedbackForm({ subject, onBack }) {
                     {[1, 2, 3, 4, 5].map((value) => (
                       <button
                         key={value}
-                        onClick={() => handleRating(question.id, value)}
+                        type="button"
+                        onClick={() => handleRating(index, value)}
                         className={`w-12 h-12 border-2 transition-all duration-200 ${
-                          ratings[question.id] >= value
+                          ratings[index] >= value
                             ? "border-indigo-500 bg-indigo-500 text-white"
                             : "border-zinc-700 text-zinc-600 hover:border-zinc-600"
                         }`}
@@ -186,7 +206,7 @@ export default function FeedbackForm({ subject, onBack }) {
                       </button>
                     ))}
                     <span className="ml-4 text-xs text-zinc-600 tracking-wider">
-                      {ratingLabels[ratings[question.id] || 0]}
+                      {ratingLabels[ratings[index] || 0]}
                     </span>
                   </div>
                 </div>
@@ -201,8 +221,8 @@ export default function FeedbackForm({ subject, onBack }) {
                   areas.
                 </label>
                 <textarea
-                  value={textInputs.q16}
-                  onChange={(e) => handleTextInput("q16", e.target.value)}
+                  value={suggestion}
+                  onChange={(e) => setSuggestion(e.target.value)}
                   placeholder="Your suggestions..."
                   rows="3"
                   className="w-full bg-zinc-900 border-2 border-zinc-800 px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
@@ -217,8 +237,8 @@ export default function FeedbackForm({ subject, onBack }) {
                   or teaching delivery.
                 </label>
                 <textarea
-                  value={textInputs.q17}
-                  onChange={(e) => handleTextInput("q17", e.target.value)}
+                  value={observation}
+                  onChange={(e) => setObservation(e.target.value)}
                   placeholder="Your observations..."
                   rows="3"
                   className="w-full bg-zinc-900 border-2 border-zinc-800 px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
@@ -229,6 +249,7 @@ export default function FeedbackForm({ subject, onBack }) {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
+              type="button"
               className="w-full py-4 bg-indigo-600 text-white font-bold tracking-widest hover:bg-indigo-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
             >
               {isSubmitting ? (

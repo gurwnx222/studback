@@ -1,14 +1,11 @@
 "use client";
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { User, LogOut } from "lucide-react";
 import { SubjectCard } from "@/features/components/SubjectCard";
 import FeedbackForm from "@/features/components/FeedbackForm";
-<SubjectCard />;
-// Feedback Form Component
-<FeedbackForm />;
-// Main Home Component
+
 export default function MainPage() {
   const [time, setTime] = useState(new Date());
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -60,7 +57,7 @@ export default function MainPage() {
           school: studentData.school,
         });
         if (response.status === 200) {
-          const data = response?.data?.subjects; // Changed from data?.data
+          const data = response?.data?.subjects;
           setStudSubjects(data);
         }
       } catch (error) {
@@ -86,13 +83,32 @@ export default function MainPage() {
 
       if (response.status === 200) {
         console.log("Logged out successfully");
-        // Redirect to login page
         router.push("/login");
       }
     } catch (error) {
       console.error("Logout failed:", error);
-      // You can add error handling UI here if needed
       alert("Failed to logout. Please try again.");
+    }
+  };
+
+  // Handle successful feedback submission
+  const handleFeedbackSubmit = async (submittedForm) => {
+    try {
+      // Update the subject's feedback status in the local state
+      setStudSubjects((prevSubjects) =>
+        prevSubjects.map((subject) =>
+          subject._id === selectedSubject._id
+            ? { ...subject, feedbackStatus: "completed" }
+            : subject
+        )
+      );
+
+      // Go back to subjects list
+      setSelectedSubject(null);
+
+      console.log("Feedback submitted successfully!");
+    } catch (error) {
+      console.error("Error updating subject status:", error);
     }
   };
 
@@ -145,6 +161,7 @@ export default function MainPage() {
           <FeedbackForm
             subject={selectedSubject}
             onBack={() => setSelectedSubject(null)}
+            onSubmitSuccess={handleFeedbackSubmit}
           />
         ) : (
           <>
